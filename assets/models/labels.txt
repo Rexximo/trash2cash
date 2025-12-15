@@ -1,0 +1,3 @@
+0 Sampah Organik
+1 Sampah Non-organik
+2 Sampah B3
