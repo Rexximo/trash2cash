@@ -426,21 +426,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   // ==========================================================================
 
   Widget _buildActivePickupCard(BuildContext context) {
-    if (kActivePickup == null) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: const Text(
-          "Belum ada pickup aktif. Mulai request pickup pertama kamu!",
-          style: TextStyle(fontSize: 13),
-        ),
-      );
-    }
-
-    final order = kActivePickup!;
+    final order = kActivePickup;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration:
