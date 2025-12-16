@@ -41,6 +41,12 @@ enum PickupStatus {
 }
 
 class PickupModel {
+  final String? confirmedWasteType;
+  final double? confirmedWeight;
+  final int? pointsAwarded;
+  final DateTime? confirmedAt;
+  final String? confirmedBy;
+
   final String pickupId;
   final String customerId;
   final String customerName;
@@ -84,6 +90,11 @@ class PickupModel {
     this.updatedAt,
     this.completedAt,
     this.notes,
+    this.confirmedWasteType,
+    this.confirmedWeight,
+    this.pointsAwarded,
+    this.confirmedAt,
+    this.confirmedBy,
   });
 
   // Convert to Firestore
@@ -107,6 +118,11 @@ class PickupModel {
       'updatedAt': updatedAt != null ? Timestamp.fromDate(updatedAt!) : null,
       'completedAt': completedAt != null ? Timestamp.fromDate(completedAt!) : null,
       'notes': notes,
+      'confirmedWasteType': confirmedWasteType,
+      'confirmedWeight': confirmedWeight,
+      'pointsAwarded': pointsAwarded,
+      'confirmedAt': confirmedAt != null ? Timestamp.fromDate(confirmedAt!) : null,
+      'confirmedBy': confirmedBy,
     };
   }
 
@@ -139,6 +155,14 @@ class PickupModel {
       updatedAt: data['updatedAt'] != null ? (data['updatedAt'] as Timestamp).toDate() : null,
       completedAt: data['completedAt'] != null ? (data['completedAt'] as Timestamp).toDate() : null,
       notes: data['notes'],
+
+      confirmedWasteType: data['confirmedWasteType'],
+      confirmedWeight: data['confirmedWeight']?.toDouble(),
+      pointsAwarded: data['pointsAwarded'],
+      confirmedAt: data['confirmedAt'] != null 
+          ? (data['confirmedAt'] as Timestamp).toDate() 
+          : null,
+      confirmedBy: data['confirmedBy'],
     );
   }
 }

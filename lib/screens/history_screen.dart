@@ -1,23 +1,45 @@
 import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:intl/intl.dart';
 
+import '../models/points_history_model.dart';
+import '../services/points_service.dart';
+
+const kPrimaryColor = Color(0xFF00C4CC);
 const kPrimaryDark = Color(0xFF0097A7);
 const kBg = Color(0xFFF5F7F9);
 const kTextSecondary = Color(0xFF8E8E93);
 
 enum HistoryFilter { all, deposit, reward }
 
-class HistoryScreen extends StatefulWidget {
+class HistoryScreen extends ConsumerStatefulWidget {
   const HistoryScreen({super.key});
 
   @override
-  State<HistoryScreen> createState() => _HistoryScreenState();
+  ConsumerState<HistoryScreen> createState() => _HistoryScreenState();
 }
 
-class _HistoryScreenState extends State<HistoryScreen> {
+class _HistoryScreenState extends ConsumerState<HistoryScreen> {
+  final PointsService _pointsService = PointsService();
   HistoryFilter _filter = HistoryFilter.all;
 
   @override
   Widget build(BuildContext context) {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+
+    if (userId == null) {
+      return Scaffold(
+        appBar: AppBar(
+          title: const Text("Riwayat Aktivitas"),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+          elevation: 0,
+        ),
+        body: const Center(child: Text('User tidak login')),
+      );
+    }
+
     return Scaffold(
       backgroundColor: kBg,
       appBar: AppBar(
@@ -26,45 +48,124 @@ class _HistoryScreenState extends State<HistoryScreen> {
         foregroundColor: Colors.black87,
         elevation: 0,
       ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
+      body: Column(
         children: [
-          _buildFilterChips(),
-          const SizedBox(height: 20),
-          _dateSection(
-            "Hari Ini",
-            [
-              _historyItem(
-                icon: Icons.recycling,
-                title: "Setoran Sampah",
-                subtitle: "Plastik • 2.5 kg",
-                value: "+250",
-                positive: true,
-              ),
-              _historyItem(
-                icon: Icons.card_giftcard,
-                title: "Tukar Reward",
-                subtitle: "Voucher Belanja",
-                value: "-1500",
-                positive: false,
-              ),
-            ],
+          Padding(
+            padding: const EdgeInsets.all(20),
+            child: _buildFilterChips(),
           ),
-          _dateSection(
-            "12 Juni 2025",
-            [
-              _historyItem(
-                icon: Icons.recycling,
-                title: "Setoran Sampah",
-                subtitle: "Organik • 3 kg",
-                value: "+120",
-                positive: true,
-              ),
-            ],
+          Expanded(
+            child: StreamBuilder<List<PointsHistoryModel>>(
+              stream: _pointsService.getPointsHistory(userId),
+              builder: (context, snapshot) {
+                if (snapshot.connectionState == ConnectionState.waiting) {
+                  return const Center(
+                    child: CircularProgressIndicator(color: kPrimaryDark),
+                  );
+                }
+
+                if (snapshot.hasError) {
+                  return Center(
+                    child: Text('Error: ${snapshot.error}'),
+                  );
+                }
+
+                var histories = snapshot.data ?? [];
+
+                // Filter berdasarkan type
+                if (_filter == HistoryFilter.deposit) {
+                  histories = histories
+                      .where((h) => h.type == PointsType.earned)
+                      .toList();
+                } else if (_filter == HistoryFilter.reward) {
+                  histories = histories
+                      .where((h) => h.type == PointsType.spent)
+                      .toList();
+                }
+
+                if (histories.isEmpty) {
+                  return Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        Icon(
+                          Icons.inbox_outlined,
+                          size: 80,
+                          color: Colors.grey[400],
+                        ),
+                        const SizedBox(height: 16),
+                        Text(
+                          _filter == HistoryFilter.reward
+                              ? 'Belum ada penukaran reward'
+                              : 'Belum ada riwayat',
+                          style: TextStyle(
+                            fontSize: 16,
+                            color: Colors.grey[600],
+                          ),
+                        ),
+                        if (_filter == HistoryFilter.reward) ...[
+                          const SizedBox(height: 8),
+                          Text(
+                            'Fitur penukaran segera hadir!',
+                            style: TextStyle(
+                              fontSize: 14,
+                              color: Colors.grey[500],
+                            ),
+                          ),
+                        ],
+                      ],
+                    ),
+                  );
+                }
+
+                // Group by date
+                final groupedHistories = _groupByDate(histories);
+
+                return ListView.builder(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  itemCount: groupedHistories.length,
+                  itemBuilder: (context, index) {
+                    final entry = groupedHistories.entries.elementAt(index);
+                    return _buildDateSection(entry.key, entry.value);
+                  },
+                );
+              },
+            ),
           ),
         ],
       ),
     );
+  }
+
+  // Group histories by date
+  Map<String, List<PointsHistoryModel>> _groupByDate(
+      List<PointsHistoryModel> histories) {
+    final Map<String, List<PointsHistoryModel>> grouped = {};
+
+    for (var history in histories) {
+      final dateKey = _getDateKey(history.createdAt);
+      if (!grouped.containsKey(dateKey)) {
+        grouped[dateKey] = [];
+      }
+      grouped[dateKey]!.add(history);
+    }
+
+    return grouped;
+  }
+
+  String _getDateKey(DateTime date) {
+    final now = DateTime.now();
+    final today = DateTime(now.year, now.month, now.day);
+    final yesterday = today.subtract(const Duration(days: 1));
+    final dateOnly = DateTime(date.year, date.month, date.day);
+
+    if (dateOnly == today) {
+      return 'Hari Ini';
+    } else if (dateOnly == yesterday) {
+      return 'Kemarin';
+    } else {
+      return DateFormat('dd MMMM yyyy', 'id_ID').format(date);
+    }
   }
 
   // ===== FILTER =====
@@ -93,8 +194,8 @@ class _HistoryScreenState extends State<HistoryScreen> {
     );
   }
 
-  // ===== DATE GROUP =====
-  Widget _dateSection(String date, List<Widget> items) {
+  // ===== DATE SECTION =====
+  Widget _buildDateSection(String date, List<PointsHistoryModel> items) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -106,21 +207,17 @@ class _HistoryScreenState extends State<HistoryScreen> {
           ),
         ),
         const SizedBox(height: 8),
-        ...items,
+        ...items.map((history) => _buildHistoryItem(history)),
         const SizedBox(height: 20),
       ],
     );
   }
 
-  // ===== ITEM =====
-  Widget _historyItem({
-    required IconData icon,
-    required String title,
-    required String subtitle,
-    required String value,
-    required bool positive,
-  }) {
-    final color = positive ? Colors.green : Colors.orange;
+  // ===== HISTORY ITEM =====
+  Widget _buildHistoryItem(PointsHistoryModel history) {
+    final isEarned = history.type == PointsType.earned;
+    final color = isEarned ? Colors.green : Colors.orange;
+    final icon = isEarned ? Icons.recycling : Icons.card_giftcard;
 
     return Container(
       margin: const EdgeInsets.only(bottom: 10),
@@ -137,11 +234,14 @@ class _HistoryScreenState extends State<HistoryScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(title,
-                    style:
-                        const TextStyle(fontWeight: FontWeight.w600)),
                 Text(
-                  subtitle,
+                  history.type.displayName,
+                  style: const TextStyle(fontWeight: FontWeight.w600),
+                ),
+                Text(
+                  isEarned
+                      ? '${history.wasteTypeDisplay} • ${history.weight} kg'
+                      : 'Voucher Belanja',
                   style: const TextStyle(
                     fontSize: 12,
                     color: kTextSecondary,
@@ -151,7 +251,7 @@ class _HistoryScreenState extends State<HistoryScreen> {
             ),
           ),
           Text(
-            value,
+            '${isEarned ? '+' : '-'}${history.pointsEarned}',
             style: TextStyle(
               fontWeight: FontWeight.bold,
               color: color,

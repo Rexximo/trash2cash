@@ -2,10 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
+import 'package:trash2cash/screens/pickup_detail_screen.dart';
 
 import '../models/pickup_model.dart';
 import '../services/pickup_service.dart';
-import '../pages/pickup_detail_page.dart';
 
 class PetugasHomeScreen extends ConsumerStatefulWidget {
   const PetugasHomeScreen({super.key});
@@ -199,7 +199,7 @@ class _PetugasHomeScreenState extends ConsumerState<PetugasHomeScreen> {
           Navigator.push(
             context,
             MaterialPageRoute(
-              builder: (context) => PickupDetailPage(pickup: pickup),
+              builder: (context) => PickupDetailScreen(pickup: pickup),
             ),
           );
         },

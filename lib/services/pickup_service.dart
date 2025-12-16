@@ -1,10 +1,67 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/pickup_model.dart';
+import 'points_service.dart';
 
 class PickupService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final PointsService _pointsService = PointsService();
+
+  /// Complete pickup dengan konfirmasi & award points
+  Future<bool> completePickupWithPoints({
+    required String pickupId,
+    required PickupModel pickup,
+    required WasteType confirmedWasteType,
+    required double confirmedWeight,
+    required String petugasId,
+    required String petugasName,
+    String? notes,
+  }) async {
+    try {
+      print('🎯 Completing pickup with points...');
+
+      // 1. Award points ke customer
+      final pointsAwarded = await _pointsService.awardPoints(
+        customerId: pickup.customerId,
+        pickupId: pickupId,
+        wasteType: confirmedWasteType.name,
+        weight: confirmedWeight,
+        petugasId: petugasId,
+        petugasName: petugasName,
+        notes: notes,
+      );
+
+      if (!pointsAwarded) {
+        print('❌ Failed to award points');
+        return false;
+      }
+
+      // 2. Update pickup document
+      final calculatedPoints = _pointsService.calculatePoints(
+        confirmedWasteType.name,
+        confirmedWeight,
+      );
+
+      await _firestore.collection('pickups').doc(pickupId).update({
+        'status': PickupStatus.completed.name,
+        'confirmedWasteType': confirmedWasteType.name,
+        'confirmedWeight': confirmedWeight,
+        'pointsAwarded': calculatedPoints,
+        'confirmedAt': FieldValue.serverTimestamp(),
+        'confirmedBy': petugasId,
+        'completedAt': FieldValue.serverTimestamp(),
+        'updatedAt': FieldValue.serverTimestamp(),
+        'notes': notes,
+      });
+
+      print('✅ Pickup completed successfully with $calculatedPoints points');
+      return true;
+    } catch (e) {
+      print('❌ Error completing pickup with points: $e');
+      return false;
+    }
+  }
 
   /// Create pickup request
   Future<String?> createPickup(PickupModel pickup) async {

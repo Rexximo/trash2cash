@@ -1,5 +1,10 @@
 import 'package:flutter/material.dart';
+import 'package:trash2cash/screens/customer_pickups_list_screen.dart';
 import 'package:trash2cash/screens/request_pickup_screen.dart';
+import 'package:intl/intl.dart';
+import 'package:firebase_auth/firebase_auth.dart';
+import '../services/points_service.dart';
+import '../screens/history_screen.dart';
 
 /// === CONSTANT COLORS =======================================================
 
@@ -171,6 +176,8 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                         const SizedBox(height: 18),
                         _buildMainCTA(context),
                         const SizedBox(height: 20),
+                        _buildMainCTA2(context),
+                        const SizedBox(height: 20),
                         _buildQuickActions(context),
                         const SizedBox(height: 22),
                         _buildActivePickupCard(context),
@@ -315,34 +322,76 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   // ==========================================================================
 
   Widget _buildPointCard() {
-    return Container(
-      padding: const EdgeInsets.all(20),
-      width: double.infinity,
-      decoration: BoxDecoration(
-        gradient: const LinearGradient(
-          colors: [kPrimaryColor, kPrimaryDark],
-          begin: Alignment.topLeft,
-          end: Alignment.bottomRight,
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final pointsService = PointsService();
+
+    if (userId == null) {
+      return Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [kPrimaryColor, kPrimaryDark],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(26),
         ),
-        borderRadius: BorderRadius.circular(26),
-      ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text("Total Poin Kamu", style: TextStyle(color: Colors.white)),
-          SizedBox(height: 4),
-          Text("3.940",
-              style: TextStyle(
-                  color: Colors.white,
-                  fontSize: 34,
-                  fontWeight: FontWeight.bold)),
-          SizedBox(height: 10),
-          Text("Level 2 • Green Saver",
-              style: TextStyle(color: Colors.white70, fontSize: 12)),
-          SizedBox(height: 14),
-          _MiniStatsRow(),
-        ],
-      ),
+        child: const Text('User tidak login', style: TextStyle(color: Colors.white)),
+      );
+    }
+
+    return StreamBuilder<int>(
+      stream: pointsService.getTotalPointsStream(userId),
+      builder: (context, snapshot) {
+        final totalPoints = snapshot.data ?? 0;
+        final levelInfo = pointsService.calculateLevel(totalPoints);
+
+        return GestureDetector(
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(builder: (context) => const HistoryScreen()),
+            );
+          },
+          child: Container(
+            padding: const EdgeInsets.all(20),
+            width: double.infinity,
+            decoration: BoxDecoration(
+              gradient: const LinearGradient(
+                colors: [kPrimaryColor, kPrimaryDark],
+                begin: Alignment.topLeft,
+                end: Alignment.bottomRight,
+              ),
+              borderRadius: BorderRadius.circular(26),
+            ),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  "Total Poin Kamu",
+                  style: TextStyle(color: Colors.white),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  NumberFormat('#,###').format(totalPoints),
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 34,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                Text(
+                  "Level ${levelInfo['level']} • ${levelInfo['title']}",
+                  style: const TextStyle(color: Colors.white70, fontSize: 12),
+                ),
+                const SizedBox(height: 14),
+                _MiniStatsRow(userId: userId),
+              ],
+            ),
+          ),
+        );
+      },
     );
   }
 
@@ -392,6 +441,52 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     );
   }
 
+  Widget _buildMainCTA2(BuildContext context) {
+    return Container(
+      padding: const EdgeInsets.all(16),
+      decoration:
+          BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(12),
+            decoration: BoxDecoration(
+              color: kPrimaryColor.withOpacity(0.12),
+              borderRadius: BorderRadius.circular(16),
+            ),
+            child: const Icon(Icons.local_shipping_outlined,
+                size: 28, color: kPrimaryDark),
+          ),
+          const SizedBox(width: 14),
+          const Expanded(
+            child: Text(
+              "Jemput sampah hari ini? Buat permintaan pickup dan petugas akan datang.",
+              style: TextStyle(fontSize: 13),
+            ),
+          ),
+          ElevatedButton(
+            onPressed: () {
+                Navigator.push(
+                  context,
+                  MaterialPageRoute(
+                    builder: (context) => const CustomerPickupsListScreen(),
+                  ),
+                );
+              },
+            style: ElevatedButton.styleFrom(
+              backgroundColor: kPrimaryColor,
+              shape:
+                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+            ),
+            child: const Text("Request", style: TextStyle(color: Colors.white)),
+          ),
+        ],
+      ),
+    );
+  }
+
+  
+
   // ==========================================================================
 
   Widget _buildQuickActions(BuildContext context) {
@@ -426,21 +521,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   // ==========================================================================
 
   Widget _buildActivePickupCard(BuildContext context) {
-    if (kActivePickup == null) {
-      return Container(
-        padding: const EdgeInsets.all(16),
-        decoration: BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.circular(18),
-        ),
-        child: const Text(
-          "Belum ada pickup aktif. Mulai request pickup pertama kamu!",
-          style: TextStyle(fontSize: 13),
-        ),
-      );
-    }
-
-    final order = kActivePickup!;
+    final order = kActivePickup;
     return Container(
       padding: const EdgeInsets.all(16),
       decoration:
@@ -569,18 +650,82 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
 /// ===== MINI STATS ==========================================================
 
 class _MiniStatsRow extends StatelessWidget {
-  const _MiniStatsRow();
+  final String userId;
+
+  const _MiniStatsRow({required this.userId});
 
   @override
   Widget build(BuildContext context) {
-    return Wrap(
-      spacing: 20,
-      runSpacing: 6,
-      children: const [
-        _MiniStat(title: "Total Pickup", value: "12x"),
-        _MiniStat(title: "Total Sampah", value: "32 kg"),
-        _MiniStat(title: "CO₂ Diselamatkan", value: "240 kg"),
+    final pointsService = PointsService();
+
+    return Row(
+      children: [
+        Expanded(
+          child: FutureBuilder<int>(
+            future: pointsService.getSetoranCount(userId),
+            builder: (context, snapshot) {
+              return _miniStat(
+                icon: Icons.recycling,
+                value: "${snapshot.data ?? 0}",
+                label: "Setoran",
+              );
+            },
+          ),
+        ),
+        const SizedBox(width: 12),
+        Expanded(
+          child: FutureBuilder<int>(
+            future: pointsService.getPointsThisMonth(userId),
+            builder: (context, snapshot) {
+              return _miniStat(
+                icon: Icons.trending_up,
+                value: "${snapshot.data ?? 0}",
+                label: "Bulan Ini",
+              );
+            },
+          ),
+        ),
       ],
+    );
+  }
+
+  Widget _miniStat({
+    required IconData icon,
+    required String value,
+    required String label,
+  }) {
+    return Container(
+      padding: const EdgeInsets.all(12),
+      decoration: BoxDecoration(
+        color: Colors.white.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(12),
+      ),
+      child: Row(
+        children: [
+          Icon(icon, color: Colors.white, size: 20),
+          const SizedBox(width: 8),
+          Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(
+                value,
+                style: const TextStyle(
+                  color: Colors.white,
+                  fontWeight: FontWeight.bold,
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                label,
+                style: const TextStyle(
+                  color: Colors.white70,
+                  fontSize: 10,
+                ),
+              ),
+            ],
+          ),
+        ],
+      ),
     );
   }
 }
