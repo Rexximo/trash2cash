@@ -16,7 +16,7 @@ class CustomerPickupsListScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Riwayat Permintaan'),
-        backgroundColor: const Color(0xFF347433),
+        backgroundColor: const Color(0xFF0097A7),
         foregroundColor: Colors.white,
       ),
       body: StreamBuilder<List<PickupModel>>(
@@ -25,7 +25,7 @@ class CustomerPickupsListScreen extends ConsumerWidget {
           if (snapshot.connectionState == ConnectionState.waiting) {
             return const Center(
               child: CircularProgressIndicator(
-                color: Color(0xFF347433),
+                color: Color(0xFF0097A7),
               ),
             );
           }

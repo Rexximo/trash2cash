@@ -89,7 +89,7 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
     return Scaffold(
       appBar: AppBar(
         title: const Text('Status Penjemputan'),
-        backgroundColor: const Color(0xFF347433),
+        backgroundColor: const Color(0xFF0097A7),
         foregroundColor: Colors.white,
       ),
       body: SingleChildScrollView(
@@ -123,7 +123,7 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
                         height: 40,
                         child: const Icon(
                           Icons.location_pin,
-                          color: Color(0xFF347433),
+                          color: Color(0xFF0097A7),
                           size: 40,
                         ),
                       ),
@@ -183,14 +183,14 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
                 decoration: BoxDecoration(
                   gradient: LinearGradient(
                     colors: [
-                      const Color(0xFF347433),
-                      const Color(0xFF347433).withOpacity(0.8),
+                      const Color(0xFF0097A7),
+                      const Color(0xFF0097A7).withOpacity(0.8),
                     ],
                   ),
                   borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF347433).withOpacity(0.3),
+                      color: const Color(0xFF0097A7).withOpacity(0.3),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
@@ -292,11 +292,11 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
                     Row(
                       children: [
                         CircleAvatar(
-                          backgroundColor: const Color(0xFF347433).withOpacity(0.2),
+                          backgroundColor: const Color(0xFF0097A7).withOpacity(0.2),
                           child: Text(
                             pickup.assignedPetugasName![0].toUpperCase(),
                             style: const TextStyle(
-                              color: Color(0xFF347433),
+                              color: Color(0xFF0097A7),
                               fontWeight: FontWeight.bold,
                             ),
                           ),
@@ -315,7 +315,7 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
                           IconButton(
                             onPressed: _callPetugas,
                             icon: const Icon(Icons.phone),
-                            color: const Color(0xFF347433),
+                            color: const Color(0xFF0097A7),
                           ),
                       ],
                     ),

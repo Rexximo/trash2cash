@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:trash2cash/models/points_history_model.dart';
 import 'package:trash2cash/screens/customer_pickups_list_screen.dart';
 import 'package:trash2cash/screens/request_pickup_screen.dart';
 import 'package:intl/intl.dart';
@@ -174,9 +175,9 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                         const SizedBox(height: 18),
                         _buildPointCard(),
                         const SizedBox(height: 18),
+                        // _buildEcoTips(),
+                        // const SizedBox(height: 20),
                         _buildMainCTA(context),
-                        const SizedBox(height: 20),
-                        _buildMainCTA2(context),
                         const SizedBox(height: 20),
                         _buildQuickActions(context),
                         const SizedBox(height: 22),
@@ -398,93 +399,134 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   // ==========================================================================
 
   Widget _buildMainCTA(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration:
-          BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
+    return Row(
+      children: [
+        // Column 1: Request Pickup
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(16),
             decoration: BoxDecoration(
-              color: kPrimaryColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(16),
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
             ),
-            child: const Icon(Icons.local_shipping_outlined,
-                size: 28, color: kPrimaryDark),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Text(
-              "Jemput sampah hari ini? Buat permintaan pickup dan petugas akan datang.",
-              style: TextStyle(fontSize: 13),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const RequestPickupScreen(),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(16),
                   ),
-                );
-              },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kPrimaryColor,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
+                  child: const Icon(
+                    Icons.local_shipping_outlined,
+                    size: 28,
+                    color: kPrimaryDark,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Request Pickup",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const RequestPickupScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kPrimaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    child: const Text(
+                      "Buat",
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                ),
+              ],
             ),
-            child: const Text("Request", style: TextStyle(color: Colors.white)),
           ),
-        ],
-      ),
+        ),
+        
+        const SizedBox(width: 12),
+        
+        // Column 2: Status Pickup
+        Expanded(
+          child: Container(
+            padding: const EdgeInsets.all(16),
+            decoration: BoxDecoration(
+              color: Colors.white,
+              borderRadius: BorderRadius.circular(18),
+            ),
+            child: Column(
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(12),
+                  decoration: BoxDecoration(
+                    color: kPrimaryColor.withOpacity(0.12),
+                    borderRadius: BorderRadius.circular(16),
+                  ),
+                  child: const Icon(
+                    Icons.track_changes,
+                    size: 28,
+                    color: kPrimaryDark,
+                  ),
+                ),
+                const SizedBox(height: 10),
+                const Text(
+                  "Status Pickup",
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 13,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 8),
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (context) => const CustomerPickupsListScreen(),
+                        ),
+                      );
+                    },
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: kPrimaryColor,
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      padding: const EdgeInsets.symmetric(vertical: 10),
+                    ),
+                    child: const Text(
+                      "Lihat",
+                      style: TextStyle(color: Colors.white, fontSize: 12),
+                    ),
+                  ),
+                ),
+              ],
+            ),
+          ),
+        ),
+      ],
     );
   }
-
-  Widget _buildMainCTA2(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration:
-          BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
-      child: Row(
-        children: [
-          Container(
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: kPrimaryColor.withOpacity(0.12),
-              borderRadius: BorderRadius.circular(16),
-            ),
-            child: const Icon(Icons.local_shipping_outlined,
-                size: 28, color: kPrimaryDark),
-          ),
-          const SizedBox(width: 14),
-          const Expanded(
-            child: Text(
-              "Jemput sampah hari ini? Buat permintaan pickup dan petugas akan datang.",
-              style: TextStyle(fontSize: 13),
-            ),
-          ),
-          ElevatedButton(
-            onPressed: () {
-                Navigator.push(
-                  context,
-                  MaterialPageRoute(
-                    builder: (context) => const CustomerPickupsListScreen(),
-                  ),
-                );
-              },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: kPrimaryColor,
-              shape:
-                  RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-            ),
-            child: const Text("Request", style: TextStyle(color: Colors.white)),
-          ),
-        ],
-      ),
-    );
-  }
-
   
 
   // ==========================================================================
@@ -555,36 +597,73 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   // ==========================================================================
 
   Widget _buildHistorySection(BuildContext context) {
+    final PointsService pointsService = PointsService();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final userId = auth.currentUser?.uid;
+
+    if (userId == null) {
+      return _buildHistoryError();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         Row(
           children: [
-            const Text("Riwayat Terbaru",
-                style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+            const Text(
+              "Riwayat Terbaru",
+              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600),
+            ),
             const Spacer(),
             TextButton(
-              onPressed: () {},
-              child:
-                  const Text("Lihat Semua", style: TextStyle(color: kPrimaryDark)),
+              onPressed: () {
+                // TODO: Navigate ke halaman riwayat lengkap
+                // Navigator.push(context, MaterialPageRoute(...));
+              },
+              child: const Text(
+                "Lihat Semua",
+                style: TextStyle(color: kPrimaryDark),
+              ),
             ),
           ],
         ),
         const SizedBox(height: 8),
-        Column(
-          children: kRecentHistory
-              .map(
-                (o) => Padding(
-                  padding: const EdgeInsets.only(bottom: 8),
-                  child: _HistoryTile(order: o),
-                ),
-              )
-              .toList(),
+        
+        // StreamBuilder untuk real-time data dari Firebase
+        StreamBuilder<List<PointsHistoryModel>>(
+          stream: pointsService.getPointsHistory(userId),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return _buildHistoryLoading();
+            }
+
+            if (snapshot.hasError) {
+              return _buildHistoryError();
+            }
+
+            final history = snapshot.data ?? [];
+            if (history.isEmpty) {
+              return _buildHistoryEmpty();
+            }
+
+            // Ambil 5 riwayat terbaru
+            final recentHistory = history.take(5).toList();
+
+            return Column(
+              children: recentHistory
+                  .map((item) => Padding(
+                        padding: const EdgeInsets.only(bottom: 8),
+                        child: _HistoryTile(history: item),
+                      ))
+                  .toList(),
+            );
+          },
         ),
       ],
     );
   }
 
+  
   // ==========================================================================
 
   Widget _buildWasteChips() {
@@ -647,8 +726,297 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   }
 }
 
-/// ===== MINI STATS ==========================================================
+// 3. TAMBAHKAN class _HistoryTile (design tetap sama):
+class _HistoryTile extends StatelessWidget {
+  final PointsHistoryModel history;
 
+  const _HistoryTile({required this.history});
+
+  @override
+  Widget build(BuildContext context) {
+    final isEarned = history.type == PointsType.earned;
+    
+    return Container(
+      padding: const EdgeInsets.all(14),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(16),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.04),
+            blurRadius: 10,
+            offset: const Offset(0, 2),
+          ),
+        ],
+      ),
+      child: Row(
+        children: [
+          // ✅ Icon dengan background warna BERDASARKAN JENIS SAMPAH
+          Container(
+            width: 44,
+            height: 44,
+            decoration: BoxDecoration(
+              color: _getIconBackgroundColor(),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Icon(
+              _getIcon(),  // ← Icon berbeda per jenis
+              color: _getIconColor(),
+              size: 24,
+            ),
+          ),
+          const SizedBox(width: 12),
+          
+          // Info
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Text(
+                  _getTitle(),
+                  style: const TextStyle(
+                    fontSize: 14,
+                    fontWeight: FontWeight.w600,
+                  ),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  _buildSubtitle(),
+                  style: TextStyle(
+                    fontSize: 12,
+                    color: Colors.grey[600],
+                  ),
+                ),
+                const SizedBox(height: 2),
+                Text(
+                  _formatDate(history.createdAt),
+                  style: TextStyle(
+                    fontSize: 11,
+                    color: Colors.grey[500],
+                  ),
+                ),
+              ],
+            ),
+          ),
+          
+          // Points badge
+          Container(
+            padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+            decoration: BoxDecoration(
+              color: isEarned 
+                  ? const Color(0xFFE0F7FA) 
+                  : const Color(0xFFFFEBEE),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: Text(
+              isEarned 
+                  ? "+${history.pointsEarned}" 
+                  : "-${history.pointsEarned}",
+              style: TextStyle(
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+                color: isEarned ? kPrimary : const Color(0xFFE53935),
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // ✅ METHOD UNTUK ICON BERDASARKAN JENIS SAMPAH
+  // ═══════════════════════════════════════════════════════════
+  
+  IconData _getIcon() {
+    if (history.type != PointsType.earned) {
+      return Icons.card_giftcard;  // Icon untuk penukaran poin
+    }
+
+    // Icon berdasarkan jenis sampah
+    switch (history.wasteType.toLowerCase()) {
+      case 'organik':
+        return Icons.eco;  // 🌿 Daun untuk organik
+      case 'anorganik':
+        return Icons.recycling;  // ♻️ Recycle untuk anorganik
+      case 'b3':
+        return Icons.warning_amber_rounded;  // ⚠️ Warning untuk B3
+      default:
+        return Icons.delete_outline;  // Default icon
+    }
+  }
+
+  Color _getIconColor() {
+    if (history.type != PointsType.earned) {
+      return const Color(0xFFFF9800);  // Orange untuk penukaran
+    }
+
+    // Warna icon berdasarkan jenis sampah
+    switch (history.wasteType.toLowerCase()) {
+      case 'organik':
+        return const Color(0xFF4CAF50);  // Hijau untuk organik
+      case 'anorganik':
+        return const Color(0xFF2196F3);  // Biru untuk anorganik
+      case 'b3':
+        return const Color(0xFFFF5722);  // Merah untuk B3
+      default:
+        return Colors.grey;
+    }
+  }
+
+  Color _getIconBackgroundColor() {
+    if (history.type != PointsType.earned) {
+      return const Color(0xFFFFE0B2);  // Light orange
+    }
+
+    // Background color berdasarkan jenis sampah
+    switch (history.wasteType.toLowerCase()) {
+      case 'organik':
+        return const Color(0xFFE8F5E9);  // Light green
+      case 'anorganik':
+        return const Color(0xFFE3F2FD);  // Light blue
+      case 'b3':
+        return const Color(0xFFFFEBEE);  // Light red
+      default:
+        return Colors.grey[100]!;
+    }
+  }
+
+  String _getTitle() {
+    if (history.type != PointsType.earned) {
+      return "Penukaran Poin";
+    }
+
+    // Judul berdasarkan jenis sampah
+    switch (history.wasteType.toLowerCase()) {
+      case 'organik':
+        return "Sampah Organik";
+      case 'anorganik':
+        return "Sampah Anorganik";
+      case 'b3':
+        return "Sampah B3";
+      default:
+        return "Setoran Sampah";
+    }
+  }
+
+  // ═══════════════════════════════════════════════════════════
+  // HELPER METHODS (SAMA SEPERTI SEBELUMNYA)
+  // ═══════════════════════════════════════════════════════════
+
+  String _buildSubtitle() {
+    if (history.type == PointsType.earned) {
+      return "${_capitalizeFirst(history.wasteType)} • ${history.weight.toStringAsFixed(1)} kg";
+    } else {
+      return history.notes ?? "Reward";
+    }
+  }
+
+  String _formatDate(DateTime date) {
+    final now = DateTime.now();
+    final difference = now.difference(date);
+
+    if (difference.inDays == 0) {
+      return "Hari ini • ${DateFormat('HH:mm').format(date)}";
+    } else if (difference.inDays == 1) {
+      return "Kemarin • ${DateFormat('HH:mm').format(date)}";
+    } else if (difference.inDays < 7) {
+      return "${difference.inDays} hari lalu";
+    } else {
+      return DateFormat('dd MMM yyyy').format(date);
+    }
+  }
+
+  String _capitalizeFirst(String text) {
+    if (text.isEmpty) return text;
+    return text[0].toUpperCase() + text.substring(1);
+  }
+}
+
+// 4. TAMBAHKAN state widgets (loading, error, empty):
+Widget _buildHistoryLoading() {
+  return Column(
+    children: List.generate(
+      3,
+      (index) => Padding(
+        padding: const EdgeInsets.only(bottom: 8),
+        child: Container(
+          height: 76,
+          decoration: BoxDecoration(
+            color: Colors.grey[200],
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: const Center(
+            child: CircularProgressIndicator(),
+          ),
+        ),
+      ),
+    ),
+  );
+}
+
+Widget _buildHistoryError() {
+  return Container(
+    padding: const EdgeInsets.all(20),
+    decoration: BoxDecoration(
+      color: Colors.grey[100],
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: Column(
+      children: [
+        Icon(Icons.error_outline, size: 48, color: Colors.grey[400]),
+        const SizedBox(height: 8),
+        Text(
+          "Gagal memuat riwayat",
+          style: TextStyle(
+            fontSize: 14,
+            color: Colors.grey[600],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildHistoryEmpty() {
+  return Container(
+    padding: const EdgeInsets.all(32),
+    decoration: BoxDecoration(
+      color: Colors.grey[50],
+      borderRadius: BorderRadius.circular(16),
+      border: Border.all(color: Colors.grey[200]!),
+    ),
+    child: Column(
+      children: [
+        Icon(
+          Icons.receipt_long_outlined,
+          size: 64,
+          color: Colors.grey[400],
+        ),
+        const SizedBox(height: 12),
+        Text(
+          "Belum ada riwayat",
+          style: TextStyle(
+            fontSize: 16,
+            fontWeight: FontWeight.w600,
+            color: Colors.grey[700],
+          ),
+        ),
+        const SizedBox(height: 4),
+        Text(
+          "Riwayat setoran sampah akan muncul di sini",
+          textAlign: TextAlign.center,
+          style: TextStyle(
+            fontSize: 12,
+            color: Colors.grey[500],
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+/// ===== MINI STATS ==========================================================
 class _MiniStatsRow extends StatelessWidget {
   final String userId;
 
@@ -730,36 +1098,7 @@ class _MiniStatsRow extends StatelessWidget {
   }
 }
 
-class _MiniStat extends StatelessWidget {
-  final String title;
-  final String value;
-
-  const _MiniStat({required this.title, required this.value});
-
-  @override
-  Widget build(BuildContext context) {
-    return SizedBox(
-      width: 95,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Text(title,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: const TextStyle(color: Colors.white70, fontSize: 10)),
-          Text(value,
-              style: const TextStyle(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w600,
-                  fontSize: 12)),
-        ],
-      ),
-    );
-  }
-}
-
 /// ===== QUICK ACTION BUTTON =================================================
-
 class _QuickActionButton extends StatelessWidget {
   final IconData icon;
   final String label;
@@ -809,50 +1148,7 @@ class _QuickActionButton extends StatelessWidget {
   }
 }
 
-/// ===== HISTORY TILE ========================================================
-
-class _HistoryTile extends StatelessWidget {
-  final PickupOrder order;
-
-  const _HistoryTile({required this.order});
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      padding: const EdgeInsets.all(12),
-      decoration:
-          BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(14)),
-      child: Row(
-        children: [
-          const Icon(Icons.check_circle, size: 26, color: Colors.green),
-          const SizedBox(width: 10),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Pickup ${order.id}",
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                Text(order.subtitle, style: const TextStyle(fontSize: 12)),
-                Text(order.timeLabel,
-                    style:
-                        const TextStyle(fontSize: 11, color: Colors.black54)),
-              ],
-            ),
-          ),
-          if (order.points != null)
-            Text(
-              "+${order.points} pt",
-              style: const TextStyle(
-                  color: kPrimaryDark, fontWeight: FontWeight.w700),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
 /// ===== BOTTOM NAVBAR =======================================================
-
 class _BottomNavBar extends StatelessWidget {
   const _BottomNavBar();
 

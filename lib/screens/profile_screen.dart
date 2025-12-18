@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:trash2cash/services/points_service.dart';
 
 const kPrimaryDark = Color(0xFF0097A7);
 const kBg = Color(0xFFF5F7F9);
@@ -20,7 +22,7 @@ class ProfileScreen extends StatelessWidget {
       body: ListView(
         padding: const EdgeInsets.all(20),
         children: [
-          _header(),
+          _header(context),
           const SizedBox(height: 20),
           _levelProgress(),
           const SizedBox(height: 30),
@@ -42,13 +44,75 @@ class ProfileScreen extends StatelessWidget {
   }
 
   // ===== HEADER =====
-  Widget _header() {
+  Widget _header(BuildContext context) {
+    final PointsService pointsService = PointsService();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final userId = auth.currentUser?.uid;
+
+    if (userId == null) {
+      return _headerError();
+    }
+
+    return StreamBuilder<int>(
+      stream: pointsService.getTotalPointsStream(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _headerLoading();
+        }
+
+        if (snapshot.hasError) {
+          return _headerError();
+        }
+
+        final totalPoints = snapshot.data ?? 0;
+        final levelInfo = pointsService.calculateLevel(totalPoints);
+
+        return _headerContent(
+          level: levelInfo['level'],
+          levelTitle: levelInfo['title'],
+          totalPoints: totalPoints,
+        );
+      },
+    );
+  }
+
+  Widget _headerContent({
+    required int level,
+    required String levelTitle,
+    required int totalPoints,
+  }) {
     return Column(
       children: [
-        const CircleAvatar(
-          radius: 42,
-          backgroundColor: Color(0xFFE0F7FA),
-          child: Icon(Icons.person, size: 46),
+        // Avatar dengan badge level
+        Stack(
+          children: [
+            const CircleAvatar(
+              radius: 42,
+              backgroundColor: Color(0xFFE0F7FA),
+              child: Icon(Icons.person, size: 46),
+            ),
+            // Badge level di pojok kanan bawah
+            Positioned(
+              bottom: 0,
+              right: 0,
+              child: Container(
+                padding: const EdgeInsets.all(6),
+                decoration: BoxDecoration(
+                  color: _getLevelColor(level),
+                  shape: BoxShape.circle,
+                  border: Border.all(color: Colors.white, width: 2),
+                ),
+                child: Text(
+                  '$level',
+                  style: const TextStyle(
+                    color: Colors.white,
+                    fontSize: 12,
+                    fontWeight: FontWeight.bold,
+                  ),
+                ),
+              ),
+            ),
+          ],
         ),
         const SizedBox(height: 10),
         const Text(
@@ -56,13 +120,112 @@ class ProfileScreen extends StatelessWidget {
           style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
+        // Level dinamis dari Firebase
+        Text(
+          "Level $level • $levelTitle ${_getLevelEmoji(level)}",
+          style: const TextStyle(fontSize: 12, color: kTextSecondary),
+        ),
+        const SizedBox(height: 8),
+        // Bonus: Badge total poin
+        Container(
+          padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+          decoration: BoxDecoration(
+            color: const Color(0xFFE0F7FA),
+            borderRadius: BorderRadius.circular(20),
+          ),
+          child: Text(
+            "${_formatPoints(totalPoints)} Poin",
+            style: const TextStyle(
+              fontSize: 11,
+              fontWeight: FontWeight.w600,
+              color: Color(0xFF00838F),
+            ),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 4. Tambahkan method loading state:
+
+  Widget _headerLoading() {
+    return Column(
+      children: [
+        const CircleAvatar(
+          radius: 42,
+          backgroundColor: Color(0xFFE0F7FA),
+          child: CircularProgressIndicator(),
+        ),
+        const SizedBox(height: 10),
         const Text(
-          "Level 2 • Green Saver",
+          "Pejuang Lingkungan",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+        const SizedBox(height: 4),
+        Container(
+          width: 100,
+          height: 12,
+          decoration: BoxDecoration(
+            color: Colors.grey[300],
+            borderRadius: BorderRadius.circular(6),
+          ),
+        ),
+      ],
+    );
+  }
+
+  // 5. Tambahkan method error state:
+
+  Widget _headerError() {
+    return Column(
+      children: const [
+        CircleAvatar(
+          radius: 42,
+          backgroundColor: Color(0xFFE0F7FA),
+          child: Icon(Icons.person, size: 46),
+        ),
+        SizedBox(height: 10),
+        Text(
+          "Pejuang Lingkungan",
+          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        ),
+        SizedBox(height: 4),
+        Text(
+          "Level --- • ---",
           style: TextStyle(fontSize: 12, color: kTextSecondary),
         ),
       ],
     );
   }
+
+  // 6. Tambahkan helper methods:
+
+  String _formatPoints(int points) {
+    return points.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
+    );
+  }
+
+  String _getLevelEmoji(int level) {
+    switch (level) {
+      case 1: return '🌱';
+      case 2: return '🌿';
+      case 3: return '🏆';
+      case 4: return '👑';
+      default: return '⭐';
+    }
+  }
+
+  Color _getLevelColor(int level) {
+  switch (level) {
+    case 1: return const Color(0xFF4CAF50);  // Hijau
+    case 2: return const Color(0xFF00BCD4);  // Cyan
+    case 3: return const Color(0xFFFFC107);  // Kuning
+    case 4: return const Color(0xFFFF9800);  // Orange
+    default: return const Color(0xFF9E9E9E); // Abu-abu
+  }
+}
 
   // ===== LEVEL =====
   Widget _levelProgress() {
