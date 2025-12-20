@@ -286,19 +286,7 @@ class ProfileScreen extends StatelessWidget {
               // Header dengan icon
               Row(
                 children: [
-                  Container(
-                    padding: const EdgeInsets.all(10),
-                    decoration: BoxDecoration(
-                      color: _getLevelColor(currentLevel).withOpacity(0.15),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: Icon(
-                      Icons.military_tech,
-                      color: _getLevelColor(currentLevel),
-                      size: 24,
-                    ),
-                  ),
-                  const SizedBox(width: 12),
+                  const SizedBox(width: 6),
                   Expanded(
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
