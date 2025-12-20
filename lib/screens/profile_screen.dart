@@ -240,31 +240,265 @@ class ProfileScreen extends StatelessWidget {
 
   // ===== LEVEL =====
   Widget _levelProgress() {
+    final PointsService pointsService = PointsService();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final userId = auth.currentUser?.uid;
+
+    if (userId == null) {
+      return const SizedBox.shrink();
+    }
+
+    return StreamBuilder<int>(
+      stream: pointsService.getTotalPointsStream(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _levelProgressLoading();
+        }
+
+        final totalPoints = snapshot.data ?? 0;
+        final levelInfo = pointsService.calculateLevel(totalPoints);
+        
+        final int currentLevel = levelInfo['level'];
+        final String levelTitle = levelInfo['title'];
+        final double progress = levelInfo['progress'];
+        final int? nextLevelPoints = levelInfo['nextLevel'];
+        
+        // Hitung poin yang dibutuhkan
+        final int pointsNeeded = nextLevelPoints != null 
+            ? nextLevelPoints - totalPoints 
+            : 0;
+        
+        final bool isMaxLevel = nextLevelPoints == null;
+
+        return Container(
+          padding: const EdgeInsets.all(18),
+          decoration: BoxDecoration(
+            color: Colors.white,  // Simple & clean!
+            borderRadius: BorderRadius.circular(20),
+            border: Border.all(
+              color: _getLevelColor(currentLevel).withOpacity(0.2),
+              width: 1.5,
+            ),
+          ),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              // Header dengan icon
+              Row(
+                children: [
+                  Container(
+                    padding: const EdgeInsets.all(10),
+                    decoration: BoxDecoration(
+                      color: _getLevelColor(currentLevel).withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Icon(
+                      Icons.military_tech,
+                      color: _getLevelColor(currentLevel),
+                      size: 24,
+                    ),
+                  ),
+                  const SizedBox(width: 12),
+                  Expanded(
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Progress Level",
+                          style: TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                        ),
+                        const SizedBox(height: 2),
+                        Text(
+                          "Level $currentLevel • $levelTitle",
+                          style: TextStyle(
+                            fontSize: 12,
+                            color: _getLevelColor(currentLevel),
+                            fontWeight: FontWeight.w500,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  // Badge progress percentage
+                  Container(
+                    padding: const EdgeInsets.symmetric(
+                      horizontal: 10,
+                      vertical: 6,
+                    ),
+                    decoration: BoxDecoration(
+                      color: _getLevelColor(currentLevel),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Text(
+                      "${(progress * 100).toStringAsFixed(0)}%",
+                      style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 12,
+                        fontWeight: FontWeight.bold,
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 16),
+              
+              // Progress bar dengan gradient
+              Stack(
+                children: [
+                  // Background
+                  Container(
+                    height: 10,
+                    decoration: BoxDecoration(
+                      color: Colors.grey.shade200,
+                      borderRadius: BorderRadius.circular(10),
+                    ),
+                  ),
+                  // Progress
+                  FractionallySizedBox(
+                    widthFactor: progress,
+                    child: Container(
+                      height: 10,
+                      decoration: BoxDecoration(
+                        gradient: LinearGradient(
+                          colors: [
+                            _getLevelColor(currentLevel),
+                            _getLevelColor(currentLevel).withOpacity(0.7),
+                          ],
+                        ),
+                        borderRadius: BorderRadius.circular(10),
+                        boxShadow: [
+                          BoxShadow(
+                            color: _getLevelColor(currentLevel).withOpacity(0.3),
+                            blurRadius: 4,
+                            offset: const Offset(0, 2),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              ),
+              
+              const SizedBox(height: 12),
+              
+              // Info text
+              if (isMaxLevel)
+                Row(
+                  children: [
+                    Icon(
+                      Icons.emoji_events,
+                      size: 16,
+                      color: _getLevelColor(currentLevel),
+                    ),
+                    const SizedBox(width: 6),
+                    const Expanded(
+                      child: Text(
+                        "Selamat! Anda sudah mencapai level maksimal 🎉",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: kTextSecondary,
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                    ),
+                  ],
+                )
+              else
+                Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Expanded(
+                      child: Row(
+                        children: [
+                          Icon(
+                            Icons.arrow_upward,
+                            size: 14,
+                            color: _getLevelColor(currentLevel),
+                          ),
+                          const SizedBox(width: 4),
+                          Expanded(
+                            child: Text(
+                              "${_formatPoints(pointsNeeded)} poin lagi ke Level ${currentLevel + 1}",
+                              style: const TextStyle(
+                                fontSize: 12,
+                                color: kTextSecondary,
+                                fontWeight: FontWeight.w500,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Text(
+                      "${_formatPoints(totalPoints)} / ${_formatPoints(nextLevelPoints)}",
+                      style: TextStyle(
+                        fontSize: 11,
+                        color: Colors.grey.shade600,
+                        fontWeight: FontWeight.w500,
+                      ),
+                    ),
+                  ],
+                ),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _levelProgressLoading() {
     return Container(
-      padding: const EdgeInsets.all(16),
+      padding: const EdgeInsets.all(18),
       decoration: BoxDecoration(
         color: Colors.white,
-        borderRadius: BorderRadius.circular(18),
+        borderRadius: BorderRadius.circular(20),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          const Text(
-            "Progress Level",
-            style: TextStyle(fontWeight: FontWeight.w600),
+          Row(
+            children: [
+              Container(
+                width: 44,
+                height: 44,
+                decoration: BoxDecoration(
+                  color: Colors.grey[200],
+                  borderRadius: BorderRadius.circular(12),
+                ),
+              ),
+              const SizedBox(width: 12),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Container(
+                      width: 100,
+                      height: 12,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(6),
+                      ),
+                    ),
+                    const SizedBox(height: 6),
+                    Container(
+                      width: 80,
+                      height: 10,
+                      decoration: BoxDecoration(
+                        color: Colors.grey[300],
+                        borderRadius: BorderRadius.circular(5),
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+            ],
           ),
-          const SizedBox(height: 10),
-          LinearProgressIndicator(
-            value: 0.6,
-            minHeight: 8,
-            backgroundColor: Colors.grey.shade200,
-            color: kPrimaryDark,
-          ),
-          const SizedBox(height: 8),
-          const Text(
-            "1.060 poin lagi ke Level 3",
-            style: TextStyle(fontSize: 12, color: kTextSecondary),
-          ),
+          const SizedBox(height: 16),
+          const LinearProgressIndicator(),
         ],
       ),
     );
