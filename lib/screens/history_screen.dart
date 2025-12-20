@@ -7,6 +7,7 @@ import '../models/points_history_model.dart';
 import '../services/points_service.dart';
 import '../widgets/history_tile_widget.dart'; 
 
+
 const kPrimaryColor = Color(0xFF00C4CC);
 const kPrimaryDark = Color(0xFF0097A7);
 const kBg = Color(0xFFF5F7F9);
@@ -247,7 +248,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
     } else if (dateOnly == yesterday) {
       return 'Kemarin';
     } else {
-      return DateFormat('dd MMMM yyyy', 'id_ID').format(date);
+      return DateFormat('dd MMMM yyyy').format(date);
     }
   }
 

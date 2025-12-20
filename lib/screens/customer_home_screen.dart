@@ -5,6 +5,7 @@ import 'package:trash2cash/screens/request_pickup_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/points_service.dart';
+import '../services/user_service.dart';
 import '../screens/history_screen.dart';
 
 /// === CONSTANT COLORS =======================================================
@@ -208,6 +209,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
             ),
           ],
         ),
+        
       ),
     );
   }
@@ -287,6 +289,9 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   // ==========================================================================
 
   Widget _buildHeader() {
+    final userId = FirebaseAuth.instance.currentUser?.uid;
+    final userService = UserService();
+
     return Row(
       children: [
         const CircleAvatar(
@@ -295,17 +300,46 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
           child: Icon(Icons.recycling, color: Colors.white),
         ),
         const SizedBox(width: 12),
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
-            Text("Halo, Pejuang Lingkungan!",
-                style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
-            SizedBox(height: 2),
-            Text("Yuk berkontribusi untuk Bumi.",
-                style: TextStyle(fontSize: 12, color: Colors.black54)),
-          ],
+        
+        Expanded(
+          child: userId == null
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    Text("Halo, Pejuang Lingkungan!",
+                        style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                    SizedBox(height: 2),
+                    Text("Yuk berkontribusi untuk Bumi.",
+                        style: TextStyle(fontSize: 12, color: Colors.black54)),
+                  ],
+                )
+              : StreamBuilder<String>(
+                  stream: userService.getUserDisplayName(userId),  
+                  builder: (context, snapshot) {
+                    final displayName = snapshot.data ?? 'Pejuang Lingkungan';
+                    
+                    return Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          "Halo, $displayName!",  
+                          style: const TextStyle(
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                          ),
+                          overflow: TextOverflow.ellipsis,
+                        ),
+                        const SizedBox(height: 2),
+                        const Text(
+                          "Yuk berkontribusi untuk Bumi.",
+                          style: TextStyle(fontSize: 12, color: Colors.black54),
+                        ),
+                      ],
+                    );
+                  },
+                ),
         ),
-        const Spacer(),
+        
         IconButton(
           onPressed: () {},
           icon: const Icon(Icons.notifications_none_rounded,

@@ -1,6 +1,7 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trash2cash/services/points_service.dart';
+import 'package:trash2cash/services/user_service.dart';
 
 const kPrimaryDark = Color(0xFF0097A7);
 const kBg = Color(0xFFF5F7F9);
@@ -46,6 +47,7 @@ class ProfileScreen extends StatelessWidget {
   // ===== HEADER =====
   Widget _header(BuildContext context) {
     final PointsService pointsService = PointsService();
+    final UserService userService = UserService();
     final FirebaseAuth auth = FirebaseAuth.instance;
     final userId = auth.currentUser?.uid;
 
@@ -55,22 +57,30 @@ class ProfileScreen extends StatelessWidget {
 
     return StreamBuilder<int>(
       stream: pointsService.getTotalPointsStream(userId),
-      builder: (context, snapshot) {
-        if (snapshot.connectionState == ConnectionState.waiting) {
+      builder: (context, pointsSnapshot) {
+        if (pointsSnapshot.connectionState == ConnectionState.waiting) {
           return _headerLoading();
         }
 
-        if (snapshot.hasError) {
+        if (pointsSnapshot.hasError) {
           return _headerError();
         }
 
-        final totalPoints = snapshot.data ?? 0;
+        final totalPoints = pointsSnapshot.data ?? 0;
         final levelInfo = pointsService.calculateLevel(totalPoints);
 
-        return _headerContent(
-          level: levelInfo['level'],
-          levelTitle: levelInfo['title'],
-          totalPoints: totalPoints,
+        return StreamBuilder<String>(
+          stream: userService.getUserDisplayName(userId),
+          builder: (context, nameSnapshot) {
+            final displayName = nameSnapshot.data ?? 'Pejuang Lingkungan';
+
+            return _headerContent(
+              level: levelInfo['level'],
+              levelTitle: levelInfo['title'],
+              totalPoints: totalPoints,
+              displayName: displayName,  
+            );
+          },
         );
       },
     );
@@ -80,6 +90,7 @@ class ProfileScreen extends StatelessWidget {
     required int level,
     required String levelTitle,
     required int totalPoints,
+    required String displayName,
   }) {
     return Column(
       children: [
@@ -115,9 +126,9 @@ class ProfileScreen extends StatelessWidget {
           ],
         ),
         const SizedBox(height: 10),
-        const Text(
-          "Pejuang Lingkungan",
-          style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
+        Text(
+          displayName,  // ✅ Hapus tanda seru, atau tambahkan di sini jika mau
+          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.w600),
         ),
         const SizedBox(height: 4),
         // Level dinamis dari Firebase
