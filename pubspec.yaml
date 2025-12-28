@@ -49,6 +49,11 @@ dependencies:
   url_launcher: ^6.2.4
   cloudinary_public: ^0.21.0
 
+    # QR Code Scanner
+  mobile_scanner: ^5.2.3
+  # Permission handler untuk camera
+  permission_handler: ^11.3.1
+
 
 
 dev_dependencies:

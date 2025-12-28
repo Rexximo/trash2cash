@@ -138,7 +138,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             Icon(
               icon,
               size: 16,
-              color: selected ? kPrimaryDark : kTextSecondary,
+              color: selected ? kPrimaryColor : kTextSecondary,
             ),
             const SizedBox(width: 6),
             Text(label),
@@ -146,10 +146,10 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
         ),
         selected: selected,
         onSelected: (_) => setState(() => _filter = value),
-        selectedColor: kPrimaryDark.withOpacity(0.15),
+        selectedColor: kPrimaryColor.withOpacity(0.15),
         backgroundColor: Colors.white,
         labelStyle: TextStyle(
-          color: selected ? kPrimaryDark : kTextSecondary,
+          color: selected ? kPrimaryColor : kTextSecondary,
           fontWeight: selected ? FontWeight.w600 : FontWeight.w500,
         ),
         showCheckmark: false,
@@ -332,7 +332,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
               child: ElevatedButton(
                 onPressed: () => Navigator.pop(context),
                 style: ElevatedButton.styleFrom(
-                  backgroundColor: kPrimaryDark,
+                  backgroundColor: kPrimaryColor,
                   foregroundColor: Colors.white,
                   padding: const EdgeInsets.symmetric(vertical: 14),
                   shape: RoundedRectangleBorder(

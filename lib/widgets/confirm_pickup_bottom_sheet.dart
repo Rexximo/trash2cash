@@ -170,7 +170,7 @@ class _ConfirmPickupBottomSheetState
             ),
             const SizedBox(height: 8),
             DropdownButtonFormField<WasteType>(
-              value: _selectedWasteType,
+              initialValue: _selectedWasteType,
               decoration: InputDecoration(
                 border: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),

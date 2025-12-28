@@ -1,7 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../models/points_history_model.dart';
-import '../models/pickup_model.dart';
 
 class PointsService {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;

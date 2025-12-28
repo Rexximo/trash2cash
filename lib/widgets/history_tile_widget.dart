@@ -21,11 +21,11 @@ class HistoryTileWidget extends StatelessWidget {
   final VoidCallback? onTap;  // Optional: action saat di-tap
 
   const HistoryTileWidget({
-    Key? key,
+    super.key,
     required this.history,
     this.showDate = false,
     this.onTap,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -244,11 +244,11 @@ class HistoryEmptyState extends StatelessWidget {
   final IconData icon;
 
   const HistoryEmptyState({
-    Key? key,
+    super.key,
     required this.title,
     this.subtitle,
     this.icon = Icons.inbox_outlined,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -299,9 +299,9 @@ class HistoryLoadingState extends StatelessWidget {
   final int itemCount;
 
   const HistoryLoadingState({
-    Key? key,
+    super.key,
     this.itemCount = 5,
-  }) : super(key: key);
+  });
 
   @override
   Widget build(BuildContext context) {

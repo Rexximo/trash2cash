@@ -7,6 +7,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/points_service.dart';
 import '../services/user_service.dart';
 import '../screens/history_screen.dart';
+import '../screens/qr_scanner_screen.dart';
 
 /// === CONSTANT COLORS =======================================================
 
@@ -176,8 +177,8 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                         const SizedBox(height: 18),
                         _buildPointCard(),
                         const SizedBox(height: 18),
-                        // _buildEcoTips(),
-                        // const SizedBox(height: 20),
+                        _buildQRScanButton(context),
+                        const SizedBox(height: 20),
                         _buildMainCTA(context),
                         const SizedBox(height: 20),
                         _buildQuickActions(context),
@@ -431,6 +432,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   }
 
   // ==========================================================================
+
 
   Widget _buildMainCTA(BuildContext context) {
     return Row(
@@ -735,6 +737,87 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     );
   }
 
+
+  Widget _buildQRScanButton(BuildContext context) {
+    return GestureDetector(
+      onTap: () async {
+        final result = await Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => const QRScannerScreen(),
+          ),
+        );
+        
+        // Refresh home screen jika berhasil scan
+        if (result == true) {
+          setState(() {});
+        }
+      },
+      child: Container(
+        padding: const EdgeInsets.all(20),
+        decoration: BoxDecoration(
+          gradient: const LinearGradient(
+            colors: [Color(0xFF00C4CC), Color(0xFF0097A7)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
+          ),
+          borderRadius: BorderRadius.circular(20),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF00C4CC).withOpacity(0.3),
+              blurRadius: 12,
+              offset: const Offset(0, 6),
+            ),
+          ],
+        ),
+        child: Row(
+          children: [
+            Container(
+              padding: const EdgeInsets.all(12),
+              decoration: BoxDecoration(
+                color: Colors.white.withOpacity(0.2),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: const Icon(
+                Icons.qr_code_scanner,
+                color: Colors.white,
+                size: 32,
+              ),
+            ),
+            const SizedBox(width: 16),
+            const Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    "Scan QR Code",
+                    style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                  SizedBox(height: 4),
+                  Text(
+                    "Klaim poin dari QR bank sampah",
+                    style: TextStyle(
+                      color: Colors.white70,
+                      fontSize: 13,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+            const Icon(
+              Icons.arrow_forward_ios,
+              color: Colors.white,
+              size: 20,
+            ),
+          ],
+        ),
+      ),
+    );
+  }
   // ==========================================================================
 
   Widget _buildEcoTips() {
@@ -759,6 +842,8 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     );
   }
 }
+
+
 
 // 3. TAMBAHKAN class _HistoryTile (design tetap sama):
 class _HistoryTile extends StatelessWidget {
@@ -849,7 +934,7 @@ class _HistoryTile extends StatelessWidget {
               style: TextStyle(
                 fontSize: 14,
                 fontWeight: FontWeight.bold,
-                color: isEarned ? kPrimary : const Color(0xFFE53935),
+                color: isEarned ? kPrimaryColor : const Color(0xFFE53935),
               ),
             ),
           ),

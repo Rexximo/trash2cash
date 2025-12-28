@@ -12,7 +12,6 @@ import '../services/pickup_service.dart';
 import '../helpers/distance_helper.dart';
 
 import '../widgets/confirm_pickup_bottom_sheet.dart';
-import '../services/points_service.dart';
 
 class PickupDetailScreen extends ConsumerStatefulWidget {
   final PickupModel pickup;

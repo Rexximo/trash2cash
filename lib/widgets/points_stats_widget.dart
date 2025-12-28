@@ -3,7 +3,7 @@ import 'package:firebase_auth/firebase_auth.dart';
 import '../services/points_service.dart';
 
 class PointsStatsWidget extends StatefulWidget {
-  const PointsStatsWidget({Key? key}) : super(key: key);
+  const PointsStatsWidget({super.key});
 
   @override
   State<PointsStatsWidget> createState() => _PointsStatsWidgetState();

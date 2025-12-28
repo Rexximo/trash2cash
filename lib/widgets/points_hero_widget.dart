@@ -11,7 +11,7 @@ class PointsHeroWidget extends StatelessWidget {
   final PointsService _pointsService = PointsService();
   final FirebaseAuth _auth = FirebaseAuth.instance;
 
-  PointsHeroWidget({Key? key}) : super(key: key);
+  PointsHeroWidget({super.key});
 
   @override
   Widget build(BuildContext context) {

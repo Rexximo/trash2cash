@@ -41,13 +41,13 @@ class _PoinScreenState extends State<PoinScreen> {
   // ===== HERO =====
   // METHOD 1: Wrapper StreamBuilder
   Widget _hero() {
-    final PointsService _pointsService = PointsService();
-    final FirebaseAuth _auth = FirebaseAuth.instance;
-    final userId = _auth.currentUser?.uid;
+    final PointsService pointsService = PointsService();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final userId = auth.currentUser?.uid;
     if (userId == null) return _heroError();
 
     return StreamBuilder<int>(
-      stream: _pointsService.getTotalPointsStream(userId),
+      stream: pointsService.getTotalPointsStream(userId),
       builder: (context, snapshot) {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return _heroLoading();
@@ -57,7 +57,7 @@ class _PoinScreenState extends State<PoinScreen> {
         }
 
         final totalPoints = snapshot.data ?? 0;
-        final levelInfo = _pointsService.calculateLevel(totalPoints);
+        final levelInfo = pointsService.calculateLevel(totalPoints);
 
         return _heroContent(
           totalPoints: totalPoints,
