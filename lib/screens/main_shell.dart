@@ -17,11 +17,19 @@ class MainShell extends StatefulWidget {
 class _MainShellState extends State<MainShell> {
   int _currentIndex = 0;
 
-  final List<Widget> _pages = const [
-    CustomerHomeScreen(),
-    PoinScreen(),
-    HistoryScreen(),
-    ProfileScreen(),
+  void _changeTab(int index) {
+    setState(() {
+      _currentIndex = index;
+    });
+  }
+
+  late final List<Widget> _pages = [
+    CustomerHomeScreen(
+      onGoToPoin: () => _changeTab(1), // 🔥 PINDAH KE TAB POIN
+    ),
+    const PoinScreen(),
+    const HistoryScreen(),
+    const ProfileScreen(),
   ];
 
   @override
@@ -55,7 +63,7 @@ class _MainShellState extends State<MainShell> {
         ),
         child: BottomNavigationBar(
           currentIndex: _currentIndex,
-          onTap: (i) => setState(() => _currentIndex = i),
+          onTap: (i) => _changeTab(i),
           type: BottomNavigationBarType.fixed,
           selectedItemColor: kPrimaryDark,
           unselectedItemColor: kTextSecondary,
@@ -76,11 +84,11 @@ class _MainShellState extends State<MainShell> {
   }
 
   BottomNavigationBarItem _item(
-      IconData icon,
-      IconData activeIcon,
-      String label,
-      int index,
-      ) {
+    IconData icon,
+    IconData activeIcon,
+    String label,
+    int index,
+  ) {
     return BottomNavigationBarItem(
       icon: AnimatedNavIcon(icon: icon, active: _currentIndex == index),
       activeIcon:
@@ -89,8 +97,6 @@ class _MainShellState extends State<MainShell> {
     );
   }
 }
-
-/// ================= ANIMATED ICON =================
 
 class AnimatedNavIcon extends StatelessWidget {
   final IconData icon;

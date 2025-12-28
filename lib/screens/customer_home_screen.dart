@@ -60,7 +60,12 @@ const List<PickupOrder> kRecentHistory = [
 /// === CustomerHomeScreen ============================================================
 
 class CustomerHomeScreen extends StatefulWidget {
-  const CustomerHomeScreen({super.key});
+  final VoidCallback onGoToPoin;
+
+  const CustomerHomeScreen({
+    super.key,
+    required this.onGoToPoin,
+  });
 
   @override
   State<CustomerHomeScreen> createState() => _CustomerHomeScreenState();
@@ -586,7 +591,10 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                 icon: item["icon"] as IconData,
                 label: item["label"] as String,
                 onTap: () {
-                  // TODO: navigasi ke fitur terkait
+                  if (item["label"] == "Rewards Poin") {
+                    widget.onGoToPoin();
+                    return;
+                  } // TODO: navigasi ke fitur terkait
                 },
               );
             },

@@ -1,6 +1,8 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trash2cash/services/points_service.dart';
+import 'rewards_catalog_screen.dart';
+
 
 const kPrimary = Color(0xFF00C4CC);
 const kPrimaryDark = Color(0xFF0097A7);
@@ -346,27 +348,39 @@ class _PoinScreenState extends State<PoinScreen> {
   }
 
   // ===== REWARDS =====
-  Widget _rewardCatalog() {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        _sectionHeader("Katalog Rewards", "Lihat Semua"),
-        const SizedBox(height: 12),
-        GridView.count(
-          crossAxisCount: 2,
-          shrinkWrap: true,
-          physics: const NeverScrollableScrollPhysics(),
-          mainAxisSpacing: 14,
-          crossAxisSpacing: 14,
-          childAspectRatio: 0.9,
-          children: List.generate(
-            4,
-            (_) => _rewardItem(),
-          ),
+Widget _rewardCatalog() {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      _sectionHeader(
+        "Katalog Rewards",
+        "Lihat Semua",
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => const RewardsCatalogScreen(),
+            ),
+          );
+        },
+      ),
+      const SizedBox(height: 12),
+      GridView.count(
+        crossAxisCount: 2,
+        shrinkWrap: true,
+        physics: const NeverScrollableScrollPhysics(),
+        mainAxisSpacing: 14,
+        crossAxisSpacing: 14,
+        childAspectRatio: 0.9,
+        children: List.generate(
+          4,
+          (_) => _rewardItem(),
         ),
-      ],
-    );
-  }
+      ),
+    ],
+  );
+}
+
 
   Widget _rewardItem() {
     return Container(
@@ -423,21 +437,36 @@ class _PoinScreenState extends State<PoinScreen> {
     );
   }
 
-  Widget _sectionHeader(String title, String action) {
-    return Row(
-      children: [
-        Text(title,
-            style: const TextStyle(
-                fontSize: 16, fontWeight: FontWeight.w600)),
-        const Spacer(),
-        Text(action,
-            style: const TextStyle(
-                fontSize: 13,
-                fontWeight: FontWeight.w500,
-                color: kPrimaryDark)),
-      ],
-    );
-  }
+Widget _sectionHeader(
+  String title,
+  String action, {
+  VoidCallback? onTap,
+}) {
+  return Row(
+    children: [
+      Text(
+        title,
+        style: const TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
+        ),
+      ),
+      const Spacer(),
+      GestureDetector(
+        onTap: onTap,
+        child: Text(
+          action,
+          style: const TextStyle(
+            fontSize: 13,
+            fontWeight: FontWeight.w500,
+            color: kPrimaryDark,
+          ),
+        ),
+      ),
+    ],
+  );
+}
+
 
 
   // Helper: Format angka
