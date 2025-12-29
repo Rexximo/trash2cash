@@ -10,9 +10,9 @@ class QRConfirmScreen extends StatefulWidget {
   final Map<String, dynamic> qrData;
 
   const QRConfirmScreen({
-    Key? key,
+    super.key,
     required this.qrData,
-  }) : super(key: key);
+  });
 
   @override
   State<QRConfirmScreen> createState() => _QRConfirmScreenState();

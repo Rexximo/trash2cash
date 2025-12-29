@@ -8,6 +8,7 @@ import '../services/points_service.dart';
 import '../services/user_service.dart';
 import '../screens/history_screen.dart';
 import '../screens/qr_scanner_screen.dart';
+import '../screens/edukasi_sampah_screen.dart';
 
 /// === CONSTANT COLORS =======================================================
 
@@ -572,37 +573,80 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
 
   // ==========================================================================
 
-  Widget _buildQuickActions(BuildContext context) {
-    return Column(
-      crossAxisAlignment: CrossAxisAlignment.start,
-      children: [
-        const Text("Layanan untuk Kamu",
-            style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
-        const SizedBox(height: 10),
-        SizedBox(
-          height: 110,
-          child: ListView.separated(
-            scrollDirection: Axis.horizontal,
-            itemCount: filteredActions.length,
-            separatorBuilder: (_, __) => const SizedBox(width: 12),
-            itemBuilder: (_, i) {
-              final item = filteredActions[i];
-              return _QuickActionButton(
-                icon: item["icon"] as IconData,
-                label: item["label"] as String,
-                onTap: () {
-                  if (item["label"] == "Rewards Poin") {
-                    widget.onGoToPoin();
-                    return;
-                  } // TODO: navigasi ke fitur terkait
-                },
-              );
-            },
-          ),
+ Widget _buildQuickActions(BuildContext context) {
+  return Column(
+    crossAxisAlignment: CrossAxisAlignment.start,
+    children: [
+      const Text(
+        "Layanan untuk Kamu",
+        style: TextStyle(
+          fontSize: 16,
+          fontWeight: FontWeight.w600,
         ),
-      ],
-    );
-  }
+      ),
+      const SizedBox(height: 10),
+      SizedBox(
+        height: 110,
+        child: ListView.separated(
+          scrollDirection: Axis.horizontal,
+          itemCount: filteredActions.length,
+          separatorBuilder: (_, __) => const SizedBox(width: 12),
+          itemBuilder: (_, i) {
+            final item = filteredActions[i];
+
+            return _QuickActionButton(
+              icon: item["icon"] as IconData,
+              label: item["label"] as String,
+              onTap: () {
+                final label = item["label"];
+
+                switch (label) {
+                  case "Rewards Poin":
+                    widget.onGoToPoin();
+                    break;
+
+                  case "Edukasi Sampah":
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const EdukasiSampahScreen(),
+                      ),
+                    );
+                    break;
+
+                  case "Status Pickup":
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const CustomerPickupsListScreen(),
+                      ),
+                    );
+                    break;
+
+                  case "Riwayat Poin":
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) =>
+                            const HistoryScreen(),
+                      ),
+                    );
+                    break;
+
+                  default:
+                    break;
+                }
+              },
+            );
+          },
+        ),
+      ),
+    ],
+  );
+}
+
 
   // ==========================================================================
 
@@ -712,10 +756,9 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
 
   Widget _buildWasteChips() {
     final List<Map<String, dynamic>> chips = [
-      {"icon": Icons.local_drink, "label": "Plastik"},
-      {"icon": Icons.eco, "label": "Organik"},
-      {"icon": Icons.wine_bar, "label": "Kaca"},
-      {"icon": Icons.hardware, "label": "Logam"},
+      {"icon": Icons.food_bank, "label" : "Organik"},
+      {"icon": Icons.recycling, "label" : "Anorganik"},
+      {"icon": Icons.inventory_2_outlined, "label": "B3"},
     ];
 
     return Column(

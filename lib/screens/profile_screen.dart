@@ -2,6 +2,61 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:trash2cash/services/points_service.dart';
 import 'package:trash2cash/services/user_service.dart';
+import 'data_pribadi_screen.dart';
+import 'alamat_screen.dart';
+import 'notifikasi_screen.dart';
+import 'bahasa_screen.dart';
+import 'bantuan_screen.dart';
+import 'tentang_aplikasi_screen.dart';
+import 'login_screen.dart';
+
+void _confirmLogout(BuildContext context) {
+  showDialog(
+    context: context,
+    builder: (context) => AlertDialog(
+      title: const Text("Keluar"),
+      content: const Text(
+        "Apakah kamu yakin ingin keluar dari akun ini?",
+      ),
+      actions: [
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Batal"),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+          ),
+          onPressed: () async {
+            await FirebaseAuth.instance.signOut();
+
+            if (!context.mounted) return;
+
+            Navigator.pop(context); // tutup dialog
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const LoginScreen(),
+              ),
+              (route) => false,
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Logout berhasil"),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+          child: const Text("Keluar"),
+        ),
+      ],
+    ),
+  );
+}
+
+
 
 const kPrimaryDark = Color(0xFF0097A7);
 const kBg = Color(0xFFF5F7F9);
@@ -10,39 +65,119 @@ const kTextSecondary = Color(0xFF8E8E93);
 class ProfileScreen extends StatelessWidget {
   const ProfileScreen({super.key});
 
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      backgroundColor: kBg,
-      appBar: AppBar(
-        title: const Text("Profil"),
-        backgroundColor: Colors.white,
-        foregroundColor: Colors.black87,
-        elevation: 0,
-      ),
-      body: ListView(
-        padding: const EdgeInsets.all(20),
-        children: [
-          _header(context),
-          const SizedBox(height: 20),
-          _levelProgress(),
-          const SizedBox(height: 30),
-          _section("Akun"),
-          _menu(Icons.person_outline, "Data Pribadi"),
-          _menu(Icons.location_on_outlined, "Alamat"),
-          const SizedBox(height: 20),
-          _section("Preferensi"),
-          _menu(Icons.notifications_outlined, "Notifikasi"),
-          _menu(Icons.language_outlined, "Bahasa"),
-          const SizedBox(height: 20),
-          _section("Lainnya"),
-          _menu(Icons.help_outline, "Bantuan"),
-          _menu(Icons.info_outline, "Tentang Aplikasi"),
-          _menu(Icons.logout, "Keluar", danger: true),
-        ],
-      ),
-    );
-  }
+@override
+Widget build(BuildContext context) {
+  return Scaffold(
+    backgroundColor: kBg,
+    appBar: AppBar(
+      title: const Text("Profil"),
+      backgroundColor: Colors.white,
+      foregroundColor: Colors.black87,
+      elevation: 0,
+    ),
+    body: ListView(
+      padding: const EdgeInsets.all(20),
+      children: [
+        _header(context),
+        const SizedBox(height: 20),
+        _levelProgress(),
+        const SizedBox(height: 30),
+
+        // ===== AKUN =====
+        _section("Akun"),
+        _menu(
+          Icons.person_outline,
+          "Data Pribadi",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const DataPribadiScreen(),
+              ),
+            );
+          },
+        ),
+        _menu(
+          Icons.location_on_outlined,
+          "Alamat",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const AlamatScreen(),
+              ),
+            );
+          },
+        ),
+
+        const SizedBox(height: 20),
+
+        // ===== PREFERENSI =====
+        _section("Preferensi"),
+        _menu(
+          Icons.notifications_outlined,
+          "Notifikasi",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const NotifikasiScreen(),
+              ),
+            );
+          },
+        ),
+        _menu(
+          Icons.language_outlined,
+          "Bahasa",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const BahasaScreen(),
+              ),
+            );
+          },
+        ),
+
+        const SizedBox(height: 20),
+
+        // ===== LAINNYA =====
+        _section("Lainnya"),
+        _menu(
+          Icons.help_outline,
+          "Bantuan",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const BantuanScreen(),
+              ),
+            );
+          },
+        ),
+        _menu(
+          Icons.info_outline,
+          "Tentang Aplikasi",
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (context) => const TentangAplikasiScreen(),
+              ),
+            );
+          },
+        ),
+        _menu(
+          Icons.logout,
+          "Keluar",
+          danger: true,
+          onTap: () => _confirmLogout(context),
+        ),
+      ],
+    ),
+  );
+}
+
 
   // ===== HEADER =====
   Widget _header(BuildContext context) {
@@ -507,25 +642,34 @@ class ProfileScreen extends StatelessWidget {
     );
   }
 
-  Widget _menu(IconData icon, String label, {bool danger = false}) {
-    return Container(
-      margin: const EdgeInsets.only(bottom: 10),
-      decoration: BoxDecoration(
-        color: Colors.white,
-        borderRadius: BorderRadius.circular(16),
+ Widget _menu(
+  IconData icon,
+  String label, {
+  bool danger = false,
+  VoidCallback? onTap,
+}) {
+  return Container(
+    margin: const EdgeInsets.only(bottom: 10),
+    decoration: BoxDecoration(
+      color: Colors.white,
+      borderRadius: BorderRadius.circular(16),
+    ),
+    child: ListTile(
+      leading: Icon(
+        icon,
+        color: danger ? Colors.red : Colors.black87,
       ),
-      child: ListTile(
-        leading: Icon(icon,
-            color: danger ? Colors.red : Colors.black87),
-        title: Text(
-          label,
-          style: TextStyle(
-            color: danger ? Colors.red : Colors.black87,
-          ),
+      title: Text(
+        label,
+        style: TextStyle(
+          color: danger ? Colors.red : Colors.black87,
+          fontWeight: FontWeight.w500,
         ),
-        trailing: const Icon(Icons.chevron_right),
-        onTap: () {},
       ),
-    );
-  }
+      trailing: const Icon(Icons.chevron_right),
+      onTap: onTap, // ✅ SEKARANG HIDUP
+    ),
+  );
+}
+
 }

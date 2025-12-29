@@ -7,7 +7,7 @@ const kPrimary = Color(0xFF00C4CC);
 const kPrimaryDark = Color(0xFF0097A7);
 
 class QRScannerScreen extends StatefulWidget {
-  const QRScannerScreen({Key? key}) : super(key: key);
+  const QRScannerScreen({super.key});
 
   @override
   State<QRScannerScreen> createState() => _QRScannerScreenState();
