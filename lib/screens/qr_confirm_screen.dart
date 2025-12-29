@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:intl/intl.dart';
 import '../services/qr_service.dart';
 
 const kPrimary = Color(0xFF00C4CC);
