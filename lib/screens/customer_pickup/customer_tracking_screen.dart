@@ -5,8 +5,8 @@ import 'package:latlong2/latlong.dart';
 import 'package:url_launcher/url_launcher.dart';
 import 'package:intl/intl.dart';
 
-import '../models/pickup_model.dart';
-import '../helpers/distance_helper.dart';
+import '../../models/pickup_model.dart';
+import '../../helpers/distance_helper.dart';
 
 class CustomerTrackingScreen extends ConsumerStatefulWidget {
   final PickupModel pickup;

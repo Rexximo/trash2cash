@@ -8,7 +8,7 @@ import 'notifikasi_screen.dart';
 import 'bahasa_screen.dart';
 import 'bantuan_screen.dart';
 import 'tentang_aplikasi_screen.dart';
-import 'login_screen.dart';
+import '../login_screen.dart';
 
 void _confirmLogout(BuildContext context) {
   showDialog(

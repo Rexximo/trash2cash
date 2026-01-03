@@ -300,17 +300,6 @@ class _PoinScreenState extends State<PoinScreen> {
     );
   }
 
-  // Tambahkan helper method untuk warna level
-  Color _getLevelColor(int level) {
-    switch (level) {
-      case 1: return const Color(0xFF00C4CC);  // Hijau
-      case 2: return const Color(0xFF00BCD4);  // Cyan
-      case 3: return const Color(0xFFFFC107);  // Kuning
-      case 4: return const Color(0xFFFF9800);  // Orange
-      default: return const Color(0xFF9E9E9E); // Abu-abu
-    }
-  }
-
   // METHOD 3: Loading State
   Widget _heroLoading() {
     return Container(

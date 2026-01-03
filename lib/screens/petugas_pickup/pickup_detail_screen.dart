@@ -7,11 +7,11 @@ import 'package:latlong2/latlong.dart';
 import 'package:intl/intl.dart';
 import 'package:url_launcher/url_launcher.dart';
 
-import '../models/pickup_model.dart';
-import '../services/pickup_service.dart';
-import '../helpers/distance_helper.dart';
+import '../../models/pickup_model.dart';
+import '../../services/pickup_service.dart';
+import '../../helpers/distance_helper.dart';
 
-import '../widgets/confirm_pickup_bottom_sheet.dart';
+import '../../widgets/confirm_pickup_bottom_sheet.dart';
 
 class PickupDetailScreen extends ConsumerStatefulWidget {
   final PickupModel pickup;

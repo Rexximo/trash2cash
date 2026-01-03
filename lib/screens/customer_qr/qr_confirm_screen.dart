@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import '../services/qr_service.dart';
+import '../../services/qr_service.dart';
 
 const kPrimary = Color(0xFF00C4CC);
 const kPrimaryDark = Color(0xFF0097A7);

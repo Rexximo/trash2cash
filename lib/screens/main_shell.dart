@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'customer_home_screen.dart';
-import 'poin_screen.dart';
-import 'history_screen.dart';
-import 'profile_screen.dart';
+import 'customer_poin/poin_screen.dart';
+import 'customer_history/history_screen.dart';
+import 'customer_profile/profile_screen.dart';
 
 const kPrimaryDark = Color(0xFF0097A7);
 const kTextSecondary = Color(0xFF8E8E93);

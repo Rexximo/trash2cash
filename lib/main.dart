@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_core/firebase_core.dart';
-// import 'package:trash2cash/pages/concentric_animation_onboarding.dart';
 import 'package:trash2cash/screens/onboarding_screen.dart';
 
 import 'firebase_options.dart';

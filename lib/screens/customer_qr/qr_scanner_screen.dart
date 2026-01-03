@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_scanner/mobile_scanner.dart';
-import '../services/qr_service.dart';
+import '../../services/qr_service.dart';
 import 'qr_confirm_screen.dart';
 
 const kPrimary = Color(0xFF00C4CC);
@@ -88,7 +88,7 @@ class _QRScannerScreenState extends State<QRScannerScreen> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.black,
+      backgroundColor: const Color(0xFF00C4CC),
       appBar: AppBar(
         title: const Text('Scan QR Code'),
         backgroundColor: Colors.transparent,

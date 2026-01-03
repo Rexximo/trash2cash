@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart';
-import 'package:trash2cash/screens/customer_tracking_screen.dart';
+import 'package:trash2cash/screens/customer_pickup/customer_tracking_screen.dart';
 
-import '../models/pickup_model.dart';
-import '../services/pickup_service.dart';
+import '../../models/pickup_model.dart';
+import '../../services/pickup_service.dart';
 
 class CustomerPickupsListScreen extends ConsumerWidget {
   const CustomerPickupsListScreen({super.key});

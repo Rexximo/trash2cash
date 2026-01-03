@@ -3,9 +3,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 
-import '../models/points_history_model.dart';
-import '../services/points_service.dart';
-import '../widgets/history_tile_widget.dart'; 
+import '../../models/points_history_model.dart';
+import '../../services/points_service.dart';
+import '../../widgets/history_tile_widget.dart'; 
 
 
 const kPrimaryColor = Color(0xFF00C4CC);
@@ -217,8 +217,7 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       case HistoryFilter.reward:
         return histories.where((h) => h.type == PointsType.spent).toList();
       case HistoryFilter.all:
-      default:
-        return histories;
+      return histories;
     }
   }
 
@@ -259,7 +258,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       case HistoryFilter.reward:
         return 'Belum ada penukaran reward';
       case HistoryFilter.all:
-      default:
         return 'Belum ada riwayat';
     }
   }
@@ -271,7 +269,6 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
       case HistoryFilter.reward:
         return 'Fitur penukaran reward segera hadir! 🎁';
       case HistoryFilter.all:
-      default:
         return 'Riwayat aktivitas akan muncul di sini';
     }
   }
@@ -317,8 +314,8 @@ class _HistoryScreenState extends ConsumerState<HistoryScreen> {
             if (history.type == PointsType.earned) ...[
               _detailRow('Jenis Sampah', history.wasteType),
               _detailRow('Berat', '${history.weight} kg'),
-              _detailRow('Perhitungan', history.calculation ?? '-'),
-              _detailRow('Petugas', history.petugasName ?? '-'),
+              _detailRow('Perhitungan', history.calculation),
+              _detailRow('Petugas', history.petugasName),
             ],
             _detailRow('Waktu', DateFormat('dd MMM yyyy, HH:mm').format(history.createdAt)),
             if (history.notes != null && history.notes!.isNotEmpty)

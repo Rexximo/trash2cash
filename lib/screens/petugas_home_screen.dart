@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
-import 'package:trash2cash/screens/pickup_detail_screen.dart';
+import 'package:trash2cash/screens/petugas_pickup/pickup_detail_screen.dart';
 
 import '../models/pickup_model.dart';
 import '../services/pickup_service.dart';

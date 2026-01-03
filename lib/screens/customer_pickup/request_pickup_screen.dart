@@ -9,10 +9,10 @@ import 'package:image_picker/image_picker.dart';
 import 'package:flutter/foundation.dart' show kIsWeb;
 import 'package:connectivity_plus/connectivity_plus.dart';
 
-import '../models/pickup_model.dart';
-import '../services/pickup_service.dart';
-import '../services/location_service.dart';
-import '../services/cloudinary_service.dart';
+import '../../models/pickup_model.dart';
+import '../../services/pickup_service.dart';
+import '../../services/location_service.dart';
+import '../../services/cloudinary_service.dart';
 
 /// ==================== DESIGN SYSTEM ====================
 const kPrimary = Color(0xFF00C4CC);

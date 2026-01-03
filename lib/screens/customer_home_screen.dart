@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:trash2cash/models/points_history_model.dart';
-import 'package:trash2cash/screens/customer_pickups_list_screen.dart';
-import 'package:trash2cash/screens/request_pickup_screen.dart';
+import 'package:trash2cash/screens/customer_pickup/customer_pickups_list_screen.dart';
+import 'package:trash2cash/screens/customer_pickup/request_pickup_screen.dart';
 import 'package:intl/intl.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import '../services/points_service.dart';
 import '../services/user_service.dart';
-import '../screens/history_screen.dart';
-import '../screens/qr_scanner_screen.dart';
-import '../screens/edukasi_sampah_screen.dart';
+import 'customer_history/history_screen.dart';
+import 'customer_qr/qr_scanner_screen.dart';
+import 'customer_edukasi/edukasi_sampah_screen.dart';
 
 /// === CONSTANT COLORS =======================================================
 
@@ -1318,52 +1318,3 @@ class _QuickActionButton extends StatelessWidget {
   }
 }
 
-/// ===== BOTTOM NAVBAR =======================================================
-class _BottomNavBar extends StatelessWidget {
-  const _BottomNavBar();
-
-  @override
-  Widget build(BuildContext context) {
-    return Container(
-      height: 70,
-      decoration: const BoxDecoration(
-        color: Colors.white,
-        boxShadow: [BoxShadow(blurRadius: 8, offset: Offset(0, -1))],
-      ),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceAround,
-        children: const [
-          _NavItem(icon: Icons.home_filled, label: "Home", active: true),
-          _NavItem(icon: Icons.account_balance_wallet_outlined, label: "Wallet"),
-          _NavItem(icon: Icons.history, label: "History"),
-          _NavItem(icon: Icons.person_outline, label: "Profile"),
-        ],
-      ),
-    );
-  }
-}
-
-class _NavItem extends StatelessWidget {
-  final IconData icon;
-  final String label;
-  final bool active;
-
-  const _NavItem({
-    required this.icon,
-    required this.label,
-    this.active = false,
-  });
-
-  @override
-  Widget build(BuildContext context) {
-    final color = active ? kPrimaryDark : Colors.black45;
-
-    return Column(
-      mainAxisAlignment: MainAxisAlignment.center,
-      children: [
-        Icon(icon, size: 24, color: color),
-        Text(label, style: TextStyle(fontSize: 11, color: color)),
-      ],
-    );
-  }
-}
