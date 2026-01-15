@@ -20,14 +20,35 @@ class CustomerTrackingScreen extends ConsumerStatefulWidget {
   ConsumerState<CustomerTrackingScreen> createState() => _CustomerTrackingScreenState();
 }
 
-class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen> {
+class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen> 
+    with SingleTickerProviderStateMixin {
   TrackingInfo? _trackingInfo;
   bool _isLoadingTracking = false;
+  
+
+  AnimationController? _pulseController;
+  Animation<double>? _pulseAnimation;
 
   @override
   void initState() {
     super.initState();
     _loadTrackingInfo();
+    
+    // Setup pulse animation untuk status icon
+    _pulseController = AnimationController(
+      duration: const Duration(milliseconds: 1500),
+      vsync: this,
+    )..repeat(reverse: true);
+    
+    _pulseAnimation = Tween<double>(begin: 0.95, end: 1.05).animate(
+      CurvedAnimation(parent: _pulseController!, curve: Curves.easeInOut),
+    );
+  }
+
+  @override
+  void dispose() {
+    _pulseController?.dispose();
+    super.dispose();
   }
 
   Future<void> _loadTrackingInfo() async {
@@ -52,33 +73,52 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
     }
   }
 
-  Color _getStatusColor() {
+  List<Color> _getStatusGradient() {
     switch (widget.pickup.status) {
       case PickupStatus.pending:
-        return Colors.orange;
+        return [const Color(0xFFFF9800), const Color(0xFFFFA726)];
       case PickupStatus.accepted:
-        return Colors.blue;
+        return [const Color(0xFF2196F3), const Color(0xFF42A5F5)];
       case PickupStatus.inProgress:
-        return const Color(0xFFFFC107);
+        return [const Color(0xFF00C4CC), const Color(0xFF26C6DA)];
       case PickupStatus.completed:
-        return Colors.green;
+        return [const Color(0xFF4CAF50), const Color(0xFF66BB6A)];
       case PickupStatus.cancelled:
-        return Colors.red;
+        return [const Color(0xFFE53935), const Color(0xFFEF5350)];
     }
+  }
+
+  Color _getStatusColor() {
+    return _getStatusGradient().first;
   }
 
   String _getStatusMessage() {
     switch (widget.pickup.status) {
       case PickupStatus.pending:
-        return 'Menunggu petugas menerima permintaan';
+        return 'Menunggu petugas menerima permintaan Anda';
       case PickupStatus.accepted:
-        return 'Petugas sedang menuju lokasi Anda';
+        return 'Petugas telah menerima dan akan segera menuju lokasi';
       case PickupStatus.inProgress:
-        return 'Petugas sedang melakukan penjemputan';
+        return 'Petugas sedang melakukan penjemputan sampah Anda';
       case PickupStatus.completed:
-        return 'Penjemputan selesai';
+        return 'Penjemputan telah selesai. Terima kasih!';
       case PickupStatus.cancelled:
-        return 'Penjemputan dibatalkan';
+        return 'Penjemputan telah dibatalkan';
+    }
+  }
+
+  IconData _getStatusIcon() {
+    switch (widget.pickup.status) {
+      case PickupStatus.pending:
+        return Icons.schedule_outlined;
+      case PickupStatus.accepted:
+        return Icons.check_circle_outline;
+      case PickupStatus.inProgress:
+        return Icons.local_shipping_outlined;
+      case PickupStatus.completed:
+        return Icons.task_alt;
+      case PickupStatus.cancelled:
+        return Icons.cancel_outlined;
     }
   }
 
@@ -87,275 +127,159 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
     final pickup = widget.pickup;
 
     return Scaffold(
+      backgroundColor: const Color(0xFFF5F7F9),
       appBar: AppBar(
-        title: const Text('Status Penjemputan'),
+        title: const Text(
+          'Status Penjemputan',
+          style: TextStyle(fontWeight: FontWeight.w600),
+        ),
         backgroundColor: const Color(0xFF00C4CC),
         foregroundColor: Colors.white,
+        
       ),
       body: SingleChildScrollView(
         child: Column(
           children: [
-            // Map
-            Container(
-              height: 250,
-              color: Colors.grey[200],
-              child: FlutterMap(
-                options: MapOptions(
-                  initialCenter: LatLng(
-                    pickup.location.latitude,
-                    pickup.location.longitude,
-                  ),
-                  initialZoom: 15.0,
-                ),
-                children: [
-                  TileLayer(
-                    urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
-                    userAgentPackageName: 'com.trash2cash.app',
-                  ),
-                  MarkerLayer(
-                    markers: [
-                      Marker(
-                        point: LatLng(
-                          pickup.location.latitude,
-                          pickup.location.longitude,
-                        ),
-                        width: 40,
-                        height: 40,
-                        child: const Icon(
-                          Icons.location_pin,
-                          color: Color(0xFF00C4CC),
-                          size: 40,
-                        ),
-                      ),
-                    ],
-                  ),
-                ],
+            // Map dengan rounded bottom corners
+            ClipRRect(
+              borderRadius: const BorderRadius.only(
+                bottomLeft: Radius.circular(24),
+                bottomRight: Radius.circular(24),
               ),
-            ),
-
-            // Status Card
-            Container(
-              margin: const EdgeInsets.all(16),
-              padding: const EdgeInsets.all(20),
-              decoration: BoxDecoration(
-                color: _getStatusColor().withOpacity(0.1),
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(
-                  color: _getStatusColor(),
-                  width: 2,
-                ),
-              ),
-              child: Column(
-                children: [
-                  Icon(
-                    _getStatusIcon(),
-                    size: 60,
-                    color: _getStatusColor(),
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    pickup.status.displayName,
-                    style: TextStyle(
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold,
-                      color: _getStatusColor(),
-                    ),
-                  ),
-                  const SizedBox(height: 8),
-                  Text(
-                    _getStatusMessage(),
-                    textAlign: TextAlign.center,
-                    style: TextStyle(
-                      fontSize: 14,
-                      color: Colors.grey[700],
-                    ),
-                  ),
-                ],
-              ),
-            ),
-
-            // Tracking Info (jika accepted/in progress)
-            if (pickup.status == PickupStatus.accepted || 
-                pickup.status == PickupStatus.inProgress) ...[
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(20),
+              child: Container(
+                height: 280,
                 decoration: BoxDecoration(
-                  gradient: LinearGradient(
-                    colors: [
-                      const Color(0xFF00C4CC),
-                      const Color(0xFF00C4CC).withOpacity(0.8),
-                    ],
-                  ),
-                  borderRadius: BorderRadius.circular(12),
                   boxShadow: [
                     BoxShadow(
-                      color: const Color(0xFF00C4CC).withOpacity(0.3),
+                      color: Colors.black.withOpacity(0.1),
                       blurRadius: 10,
                       offset: const Offset(0, 5),
                     ),
                   ],
                 ),
-                child: _isLoadingTracking
-                    ? const Center(
-                        child: CircularProgressIndicator(color: Colors.white),
-                      )
-                    : _trackingInfo != null
-                        ? Column(
-                            children: [
-                              const Row(
-                                children: [
-                                  Icon(
-                                    Icons.local_shipping,
-                                    color: Colors.white,
-                                    size: 28,
-                                  ),
-                                  SizedBox(width: 12),
-                                  Expanded(
-                                    child: Text(
-                                      'Petugas Sedang Dalam Perjalanan',
-                                      style: TextStyle(
-                                        color: Colors.white,
-                                        fontSize: 18,
-                                        fontWeight: FontWeight.bold,
-                                      ),
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 20),
-                              Row(
-                                children: [
-                                  Expanded(
-                                    child: _buildInfoBox(
-                                      icon: Icons.straighten,
-                                      label: 'Jarak',
-                                      value: _trackingInfo!.distanceFormatted,
-                                    ),
-                                  ),
-                                  const SizedBox(width: 12),
-                                  Expanded(
-                                    child: _buildInfoBox(
-                                      icon: Icons.access_time,
-                                      label: 'Estimasi',
-                                      value: _trackingInfo!.estimatedTimeFormatted,
-                                    ),
-                                  ),
-                                ],
-                              ),
-                              const SizedBox(height: 12),
-                              TextButton.icon(
-                                onPressed: _loadTrackingInfo,
-                                icon: const Icon(Icons.refresh, color: Colors.white),
-                                label: const Text(
-                                  'Refresh',
-                                  style: TextStyle(color: Colors.white),
-                                ),
-                              ),
-                            ],
-                          )
-                        : const Column(
-                            children: [
-                              Icon(Icons.location_off, color: Colors.white, size: 40),
-                              SizedBox(height: 8),
-                              Text(
-                                'Tidak dapat menghitung jarak',
-                                style: TextStyle(color: Colors.white),
-                              ),
-                            ],
-                          ),
-              ),
-              const SizedBox(height: 16),
-            ],
-
-            // Petugas Info (jika ada)
-            if (pickup.assignedPetugasName != null)
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 16),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  borderRadius: BorderRadius.circular(12),
-                  border: Border.all(color: Colors.grey[300]!),
-                ),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Stack(
                   children: [
-                    const Text(
-                      'Informasi Petugas',
-                      style: TextStyle(
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
+                    FlutterMap(
+                      options: MapOptions(
+                        initialCenter: LatLng(
+                          pickup.location.latitude,
+                          pickup.location.longitude,
+                        ),
+                        initialZoom: 15.0,
                       ),
-                    ),
-                    const SizedBox(height: 12),
-                    Row(
                       children: [
-                        CircleAvatar(
-                          backgroundColor: const Color(0xFF00C4CC).withOpacity(0.2),
-                          child: Text(
-                            pickup.assignedPetugasName![0].toUpperCase(),
-                            style: const TextStyle(
-                              color: Color(0xFF00C4CC),
-                              fontWeight: FontWeight.bold,
-                            ),
-                          ),
+                        TileLayer(
+                          urlTemplate: 'https://tile.openstreetmap.org/{z}/{x}/{y}.png',
+                          userAgentPackageName: 'com.trash2cash.app',
                         ),
-                        const SizedBox(width: 12),
-                        Expanded(
-                          child: Text(
-                            pickup.assignedPetugasName!,
-                            style: const TextStyle(
-                              fontSize: 16,
-                              fontWeight: FontWeight.w500,
+                        MarkerLayer(
+                          markers: [
+                            Marker(
+                              point: LatLng(
+                                pickup.location.latitude,
+                                pickup.location.longitude,
+                              ),
+                              width: 60,
+                              height: 60,
+                              child: Column(
+                                children: [
+                                  Container(
+                                    padding: const EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: Colors.white,
+                                      shape: BoxShape.circle,
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: _getStatusColor().withOpacity(0.4),
+                                          blurRadius: 10,
+                                          spreadRadius: 2,
+                                        ),
+                                      ],
+                                    ),
+                                    child: Icon(
+                                      Icons.location_on,
+                                      color: _getStatusColor(),
+                                      size: 28,
+                                    ),
+                                  ),
+                                ],
+                              ),
                             ),
-                          ),
+                          ],
                         ),
-                        if (pickup.customerPhone != null)
-                          IconButton(
-                            onPressed: _callPetugas,
-                            icon: const Icon(Icons.phone),
-                            color: const Color(0xFF00C4CC),
-                          ),
                       ],
+                    ),
+                    
+                    // Address badge at bottom
+                    Positioned(
+                      bottom: 16,
+                      left: 16,
+                      right: 16,
+                      child: Container(
+                        padding: const EdgeInsets.symmetric(
+                          horizontal: 16,
+                          vertical: 12,
+                        ),
+                        decoration: BoxDecoration(
+                          color: Colors.white,
+                          borderRadius: BorderRadius.circular(12),
+                          boxShadow: [
+                            BoxShadow(
+                              color: Colors.black.withOpacity(0.1),
+                              blurRadius: 10,
+                            ),
+                          ],
+                        ),
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.place,
+                              color: _getStatusColor(),
+                              size: 20,
+                            ),
+                            const SizedBox(width: 8),
+                            Expanded(
+                              child: Text(
+                                pickup.address,
+                                style: const TextStyle(
+                                  fontSize: 13,
+                                  fontWeight: FontWeight.w500,
+                                ),
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ],
                 ),
               ),
+            ),
+
+            const SizedBox(height: 20),
+
+            // Enhanced Status Card
+            _buildEnhancedStatusCard(),
+
+            const SizedBox(height: 16),
+
+            // Tracking Info
+            if (pickup.status == PickupStatus.accepted || 
+                pickup.status == PickupStatus.inProgress)
+              _buildTrackingCard(),
+
+            const SizedBox(height: 16),
+
+            // Petugas Info
+            if (pickup.assignedPetugasName != null)
+              _buildPetugasCard(),
 
             const SizedBox(height: 16),
 
             // Pickup Details
-            Container(
-              margin: const EdgeInsets.symmetric(horizontal: 16),
-              padding: const EdgeInsets.all(16),
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.circular(12),
-                border: Border.all(color: Colors.grey[300]!),
-              ),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  const Text(
-                    'Detail Permintaan',
-                    style: TextStyle(
-                      fontSize: 16,
-                      fontWeight: FontWeight.bold,
-                    ),
-                  ),
-                  const SizedBox(height: 12),
-                  _buildDetailRow(Icons.delete, 'Jenis', pickup.wasteType.displayName),
-                  _buildDetailRow(Icons.scale, 'Berat', '${pickup.weight} kg'),
-                  _buildDetailRow(
-                    Icons.calendar_today,
-                    'Dibuat',
-                    DateFormat('dd MMM yyyy, HH:mm').format(pickup.createdAt),
-                  ),
-                  _buildDetailRow(Icons.location_on, 'Lokasi', pickup.address),
-                ],
-              ),
-            ),
+            _buildPickupDetailsCard(),
 
             const SizedBox(height: 24),
           ],
@@ -364,33 +288,320 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
     );
   }
 
-  Widget _buildInfoBox({
+  Widget _buildEnhancedStatusCard() {
+    final statusGradient = _getStatusGradient();
+    
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: statusGradient,
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(24),
+        boxShadow: [
+          BoxShadow(
+            color: statusGradient.first.withOpacity(0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
+      ),
+      child: Stack(
+        children: [
+          // Decorative circles
+          Positioned(
+            top: -30,
+            right: -30,
+            child: Container(
+              width: 120,
+              height: 120,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.1),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -20,
+            left: -20,
+            child: Container(
+              width: 100,
+              height: 100,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.1),
+              ),
+            ),
+          ),
+          
+          // Main content
+          Padding(
+            padding: const EdgeInsets.all(24),
+            child: Column(
+              children: [
+                // ✅ FIX: Check animation sebelum pakai
+                _pulseAnimation != null
+                    ? ScaleTransition(
+                        scale: _pulseAnimation!,
+                        child: _buildStatusIconContainer(statusGradient),
+                      )
+                    : _buildStatusIconContainer(statusGradient),
+                
+                const SizedBox(height: 20),
+                
+                // Status Title
+                Text(
+                  widget.pickup.status.displayName,
+                  style: const TextStyle(
+                    fontSize: 28,
+                    fontWeight: FontWeight.bold,
+                    color: Colors.white,
+                    letterSpacing: 0.5,
+                  ),
+                ),
+                
+                const SizedBox(height: 12),
+                
+                // Status Message
+                Container(
+                  padding: const EdgeInsets.symmetric(
+                    horizontal: 20,
+                    vertical: 10,
+                  ),
+                  decoration: BoxDecoration(
+                    color: Colors.white.withOpacity(0.2),
+                    borderRadius: BorderRadius.circular(20),
+                  ),
+                  child: Text(
+                    _getStatusMessage(),
+                    textAlign: TextAlign.center,
+                    style: const TextStyle(
+                      fontSize: 14,
+                      color: Colors.white,
+                      height: 1.4,
+                    ),
+                  ),
+                ),
+                
+                const SizedBox(height: 16),
+                
+                // Status Timeline
+                _buildStatusTimeline(),
+              ],
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  // ✅ Extract icon container ke separate widget
+  Widget _buildStatusIconContainer(List<Color> statusGradient) {
+    return Container(
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        shape: BoxShape.circle,
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.1),
+            blurRadius: 20,
+            spreadRadius: 5,
+          ),
+        ],
+      ),
+      child: Icon(
+        _getStatusIcon(),
+        size: 48,
+        color: statusGradient.first,
+      ),
+    );
+  }
+
+  Widget _buildStatusTimeline() {
+    return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
+      children: [
+        _buildTimelineDot(PickupStatus.pending),
+        _buildTimelineLine(
+          widget.pickup.status.index >= PickupStatus.accepted.index,
+        ),
+        _buildTimelineDot(PickupStatus.accepted),
+        _buildTimelineLine(
+          widget.pickup.status.index >= PickupStatus.inProgress.index,
+        ),
+        _buildTimelineDot(PickupStatus.inProgress),
+        _buildTimelineLine(
+          widget.pickup.status == PickupStatus.completed,
+        ),
+        _buildTimelineDot(PickupStatus.completed),
+      ],
+    );
+  }
+
+  Widget _buildTimelineDot(PickupStatus status) {
+    final isActive = widget.pickup.status.index >= status.index;
+    final isCurrent = widget.pickup.status == status;
+    
+    return Container(
+      width: isCurrent ? 14 : 10,
+      height: isCurrent ? 14 : 10,
+      decoration: BoxDecoration(
+        shape: BoxShape.circle,
+        color: isActive ? Colors.white : Colors.white.withOpacity(0.3),
+        border: isCurrent
+            ? Border.all(color: Colors.white, width: 3)
+            : null,
+        boxShadow: isCurrent
+            ? [
+                BoxShadow(
+                  color: Colors.white.withOpacity(0.5),
+                  blurRadius: 8,
+                  spreadRadius: 2,
+                ),
+              ]
+            : null,
+      ),
+    );
+  }
+
+  Widget _buildTimelineLine(bool isActive) {
+    return Container(
+      width: 24,
+      height: 2,
+      color: isActive ? Colors.white : Colors.white.withOpacity(0.3),
+    );
+  }
+
+  Widget _buildTrackingCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: _isLoadingTracking
+          ? const Center(
+              child: Padding(
+                padding: EdgeInsets.all(20),
+                child: CircularProgressIndicator(),
+              ),
+            )
+          : _trackingInfo != null
+              ? Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Row(
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.all(10),
+                          decoration: BoxDecoration(
+                            color: const Color(0xFF00C4CC).withOpacity(0.1),
+                            borderRadius: BorderRadius.circular(12),
+                          ),
+                          child: const Icon(
+                            Icons.navigation,
+                            color: Color(0xFF00C4CC),
+                            size: 24,
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        const Expanded(
+                          child: Text(
+                            'Petugas Dalam Perjalanan',
+                            style: TextStyle(
+                              fontSize: 16,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                        ),
+                        IconButton(
+                          onPressed: _loadTrackingInfo,
+                          icon: const Icon(Icons.refresh),
+                          color: const Color(0xFF00C4CC),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 16),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: _buildTrackingInfoBox(
+                            icon: Icons.straighten,
+                            label: 'Jarak',
+                            value: _trackingInfo!.distanceFormatted,
+                            color: const Color(0xFF42A5F5),
+                          ),
+                        ),
+                        const SizedBox(width: 12),
+                        Expanded(
+                          child: _buildTrackingInfoBox(
+                            icon: Icons.access_time,
+                            label: 'Estimasi',
+                            value: _trackingInfo!.estimatedTimeFormatted,
+                            color: const Color(0xFF66BB6A),
+                          ),
+                        ),
+                      ],
+                    ),
+                  ],
+                )
+              : Column(
+                  children: [
+                    Icon(
+                      Icons.location_off,
+                      size: 48,
+                      color: Colors.grey[400],
+                    ),
+                    const SizedBox(height: 8),
+                    Text(
+                      'Tidak dapat menghitung jarak',
+                      style: TextStyle(color: Colors.grey[600]),
+                    ),
+                  ],
+                ),
+    );
+  }
+
+  Widget _buildTrackingInfoBox({
     required IconData icon,
     required String label,
     required String value,
+    required Color color,
   }) {
     return Container(
-      padding: const EdgeInsets.all(12),
+      padding: const EdgeInsets.all(16),
       decoration: BoxDecoration(
-        color: Colors.white.withOpacity(0.2),
-        borderRadius: BorderRadius.circular(8),
+        color: color.withOpacity(0.1),
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: color.withOpacity(0.3)),
       ),
       child: Column(
         children: [
-          Icon(icon, color: Colors.white, size: 24),
+          Icon(icon, color: color, size: 28),
           const SizedBox(height: 8),
           Text(
             value,
-            style: const TextStyle(
-              color: Colors.white,
-              fontSize: 18,
+            style: TextStyle(
+              color: color,
+              fontSize: 20,
               fontWeight: FontWeight.bold,
             ),
           ),
           Text(
             label,
             style: TextStyle(
-              color: Colors.white.withOpacity(0.8),
+              color: Colors.grey[600],
               fontSize: 12,
             ),
           ),
@@ -399,13 +610,173 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
     );
   }
 
-  Widget _buildDetailRow(IconData icon, String label, String value) {
-    return Padding(
-      padding: const EdgeInsets.only(bottom: 12),
-      child: Row(
+  Widget _buildPetugasCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          Icon(icon, size: 20, color: Colors.grey[600]),
+          const Text(
+            'Informasi Petugas',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          Row(
+            children: [
+              Container(
+                width: 56,
+                height: 56,
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    colors: [
+                      const Color(0xFF00C4CC),
+                      const Color(0xFF00C4CC).withOpacity(0.7),
+                    ],
+                  ),
+                  shape: BoxShape.circle,
+                  boxShadow: [
+                    BoxShadow(
+                      color: const Color(0xFF00C4CC).withOpacity(0.3),
+                      blurRadius: 8,
+                      offset: const Offset(0, 4),
+                    ),
+                  ],
+                ),
+                child: Center(
+                  child: Text(
+                    widget.pickup.assignedPetugasName![0].toUpperCase(),
+                    style: const TextStyle(
+                      color: Colors.white,
+                      fontSize: 24,
+                      fontWeight: FontWeight.bold,
+                    ),
+                  ),
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      widget.pickup.assignedPetugasName!,
+                      style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      'Petugas Penjemputan',
+                      style: TextStyle(
+                        fontSize: 13,
+                        color: Colors.grey[600],
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              if (widget.pickup.customerPhone != null)
+                Container(
+                  decoration: BoxDecoration(
+                    color: const Color(0xFF00C4CC).withOpacity(0.1),
+                    shape: BoxShape.circle,
+                  ),
+                  child: IconButton(
+                    onPressed: _callPetugas,
+                    icon: const Icon(Icons.phone),
+                    color: const Color(0xFF00C4CC),
+                  ),
+                ),
+            ],
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildPickupDetailsCard() {
+    return Container(
+      margin: const EdgeInsets.symmetric(horizontal: 20),
+      padding: const EdgeInsets.all(20),
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(20),
+        boxShadow: [
+          BoxShadow(
+            color: Colors.black.withOpacity(0.05),
+            blurRadius: 10,
+            offset: const Offset(0, 4),
+          ),
+        ],
+      ),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          const Text(
+            'Detail Permintaan',
+            style: TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
+          ),
+          const SizedBox(height: 16),
+          _buildDetailRow(
+            Icons.delete_outline,
+            'Jenis Sampah',
+            widget.pickup.wasteType.displayName,
+            const Color(0xFF66BB6A),
+          ),
+          _buildDetailRow(
+            Icons.scale_outlined,
+            'Berat',
+            '${widget.pickup.weight} kg',
+            const Color(0xFF42A5F5),
+          ),
+          _buildDetailRow(
+            Icons.calendar_today_outlined,
+            'Dibuat',
+            DateFormat('dd MMM yyyy, HH:mm').format(widget.pickup.createdAt),
+            const Color(0xFFFF9800),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildDetailRow(
+    IconData icon,
+    String label,
+    String value,
+    Color color,
+  ) {
+    return Padding(
+      padding: const EdgeInsets.only(bottom: 16),
+      child: Row(
+        children: [
+          Container(
+            padding: const EdgeInsets.all(8),
+            decoration: BoxDecoration(
+              color: color.withOpacity(0.1),
+              borderRadius: BorderRadius.circular(10),
+            ),
+            child: Icon(icon, size: 20, color: color),
+          ),
           const SizedBox(width: 12),
           Expanded(
             child: Column(
@@ -418,12 +789,12 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
                     color: Colors.grey[600],
                   ),
                 ),
-                const SizedBox(height: 4),
+                const SizedBox(height: 2),
                 Text(
                   value,
                   style: const TextStyle(
                     fontSize: 14,
-                    fontWeight: FontWeight.w500,
+                    fontWeight: FontWeight.w600,
                   ),
                 ),
               ],
@@ -432,20 +803,5 @@ class _CustomerTrackingScreenState extends ConsumerState<CustomerTrackingScreen>
         ],
       ),
     );
-  }
-
-  IconData _getStatusIcon() {
-    switch (widget.pickup.status) {
-      case PickupStatus.pending:
-        return Icons.schedule;
-      case PickupStatus.accepted:
-        return Icons.check_circle;
-      case PickupStatus.inProgress:
-        return Icons.local_shipping;
-      case PickupStatus.completed:
-        return Icons.done_all;
-      case PickupStatus.cancelled:
-        return Icons.cancel;
-    }
   }
 }
