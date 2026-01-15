@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:trash2cash/services/points_service.dart';
 
 const kPrimary = Color(0xFF00C4CC);
 const kPrimaryDark = Color(0xFF0097A7);
@@ -15,9 +17,6 @@ class RewardsCatalogScreen extends StatefulWidget {
 class _RewardsCatalogScreenState extends State<RewardsCatalogScreen> 
     with SingleTickerProviderStateMixin {
   late TabController _tabController;
-  
-  // SIMULASI poin user
-  final int userPoints = 1800;
 
   // DATA REWARDS dengan kategori & details
   final List<Map<String, dynamic>> allRewards = [
@@ -125,123 +124,201 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen>
 
   List<Map<String, dynamic>> getFilteredRewards(String filter) {
     if (filter == 'all') return allRewards;
-    if (filter == 'available') {
-      return allRewards.where((r) => userPoints >= (r['points'] as int)).toList();
-    }
     // by category
     return allRewards.where((r) => r['category'] == filter).toList();
   }
 
   @override
   Widget build(BuildContext context) {
+    final PointsService pointsService = PointsService();
+    final FirebaseAuth auth = FirebaseAuth.instance;
+    final userId = auth.currentUser?.uid;
+    
+    if (userId == null) {
+      return Scaffold(
+        backgroundColor: kBg,
+        appBar: AppBar(
+          title: const Text("Katalog Rewards"),
+          backgroundColor: Colors.white,
+          foregroundColor: Colors.black87,
+          elevation: 0,
+        ),
+        body: const Center(
+          child: Text('Silakan login terlebih dahulu'),
+        ),
+      );
+    }
+
+    return StreamBuilder<int>(
+      stream: pointsService.getTotalPointsStream(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return _buildLoadingScreen();
+        }
+
+        if (snapshot.hasError) {
+          return _buildErrorScreen();
+        }
+
+        final totalPoints = snapshot.data ?? 0;
+
+        return Scaffold(
+          backgroundColor: kBg,
+          appBar: AppBar(
+            title: const Text(
+              "Katalog Rewards",
+              style: TextStyle(fontWeight: FontWeight.w600),
+            ),
+            backgroundColor: Colors.white,
+            foregroundColor: Colors.black87,
+            elevation: 0,
+            bottom: PreferredSize(
+              preferredSize: const Size.fromHeight(150),
+              child: Column(
+                children: [
+                  // Points banner
+                  Container(
+                    margin: const EdgeInsets.symmetric(horizontal: 20),
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      gradient: const LinearGradient(
+                        colors: [kPrimary, kPrimaryDark],
+                      ),
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: kPrimary.withOpacity(0.3),
+                          blurRadius: 8,
+                          offset: const Offset(0, 4),
+                        ),
+                      ],
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        const Icon(Icons.stars, color: Colors.white, size: 24),
+                        const SizedBox(width: 8),
+                        const Text(
+                          'Poin Kamu: ',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                        Text(
+                          _formatPoints(totalPoints),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 24,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                        const Text(
+                          ' poin',
+                          style: TextStyle(
+                            color: Colors.white70,
+                            fontSize: 14,
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                  
+                  // Tab bar
+                  Container(
+                    margin: const EdgeInsets.only(top: 16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.05),
+                          blurRadius: 4,
+                          offset: const Offset(0, 2),
+                        ),
+                      ],
+                    ),
+                    child: TabBar(
+                      controller: _tabController,
+                      labelColor: kPrimaryDark,
+                      unselectedLabelColor: kTextSecondary,
+                      indicatorColor: kPrimaryDark,
+                      indicatorWeight: 3,
+                      labelStyle: const TextStyle(
+                        fontSize: 14,
+                        fontWeight: FontWeight.w600,
+                      ),
+                      tabs: const [
+                        Tab(text: 'Semua'),
+                        Tab(text: 'Voucher'),
+                        Tab(text: 'Pulsa'),
+                      ],
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ),
+          body: TabBarView(
+            controller: _tabController,
+            children: [
+              _buildRewardGrid(getFilteredRewards('all'), totalPoints),
+              _buildRewardGrid(getFilteredRewards('voucher'), totalPoints),
+              _buildRewardGrid(getFilteredRewards('pulsa'), totalPoints),
+            ],
+          ),
+        );
+      },
+    );
+  }
+
+  Widget _buildLoadingScreen() {
     return Scaffold(
       backgroundColor: kBg,
       appBar: AppBar(
-        title: const Text(
-          "Katalog Rewards",
-          style: TextStyle(fontWeight: FontWeight.w600),
-        ),
+        title: const Text("Katalog Rewards"),
         backgroundColor: Colors.white,
         foregroundColor: Colors.black87,
         elevation: 0,
-        bottom: PreferredSize(
-          preferredSize: const Size.fromHeight(150),
-          child: Column(
-            children: [
-              // Points banner
-              Container(
-                margin: const EdgeInsets.symmetric(horizontal: 20),
-                padding: const EdgeInsets.all(16),
-                decoration: BoxDecoration(
-                  gradient: const LinearGradient(
-                    colors: [kPrimary, kPrimaryDark],
-                  ),
-                  borderRadius: BorderRadius.circular(16),
-                  boxShadow: [
-                    BoxShadow(
-                      color: kPrimary.withOpacity(0.3),
-                      blurRadius: 8,
-                      offset: const Offset(0, 4),
-                    ),
-                  ],
-                ),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    const Icon(Icons.stars, color: Colors.white, size: 24),
-                    const SizedBox(width: 8),
-                    const Text(
-                      'Poin Kamu: ',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-                    Text(
-                      '$userPoints',
-                      style: const TextStyle(
-                        color: Colors.white,
-                        fontSize: 24,
-                        fontWeight: FontWeight.bold,
-                      ),
-                    ),
-                    const Text(
-                      ' poin',
-                      style: TextStyle(
-                        color: Colors.white70,
-                        fontSize: 14,
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              
-              // Tab bar
-              Container(
-                margin: const EdgeInsets.only(top: 16),
-                decoration: BoxDecoration(
-                  color: Colors.white,
-                  boxShadow: [
-                    BoxShadow(
-                      color: Colors.black.withOpacity(0.05),
-                      blurRadius: 4,
-                      offset: const Offset(0, 2),
-                    ),
-                  ],
-                ),
-                child: TabBar(
-                  controller: _tabController,
-                  labelColor: kPrimaryDark,
-                  unselectedLabelColor: kTextSecondary,
-                  indicatorColor: kPrimaryDark,
-                  indicatorWeight: 3,
-                  labelStyle: const TextStyle(
-                    fontSize: 14,
-                    fontWeight: FontWeight.w600,
-                  ),
-                  tabs: const [
-                    Tab(text: 'Semua'),
-                    Tab(text: 'Voucher'),
-                    Tab(text: 'Pulsa'),
-                  ],
-                ),
-              ),
-            ],
-          ),
-        ),
       ),
-      body: TabBarView(
-        controller: _tabController,
-        children: [
-          _buildRewardGrid(getFilteredRewards('all')),
-          _buildRewardGrid(getFilteredRewards('voucher')),
-          _buildRewardGrid(getFilteredRewards('pulsa')),
-        ],
+      body: const Center(
+        child: CircularProgressIndicator(color: kPrimaryDark),
       ),
     );
   }
 
-  Widget _buildRewardGrid(List<Map<String, dynamic>> rewards) {
+  Widget _buildErrorScreen() {
+    return Scaffold(
+      backgroundColor: kBg,
+      appBar: AppBar(
+        title: const Text("Katalog Rewards"),
+        backgroundColor: Colors.white,
+        foregroundColor: Colors.black87,
+        elevation: 0,
+      ),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(
+              Icons.error_outline,
+              size: 64,
+              color: Colors.grey[400],
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'Gagal memuat data poin',
+              style: TextStyle(
+                fontSize: 16,
+                color: Colors.grey[600],
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+
+  Widget _buildRewardGrid(List<Map<String, dynamic>> rewards, int userPoints) {
     if (rewards.isEmpty) {
       return Center(
         child: Column(
@@ -276,12 +353,12 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen>
       itemCount: rewards.length,
       itemBuilder: (context, index) {
         final reward = rewards[index];
-        return _buildRewardCard(reward);
+        return _buildRewardCard(reward, userPoints);
       },
     );
   }
 
-  Widget _buildRewardCard(Map<String, dynamic> reward) {
+  Widget _buildRewardCard(Map<String, dynamic> reward, int userPoints) {
     final bool canRedeem = userPoints >= (reward['points'] as int);
     final int lackPoints = (reward['points'] as int) - userPoints;
 
@@ -393,7 +470,7 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen>
                       borderRadius: BorderRadius.circular(6),
                     ),
                     child: Text(
-                      'Kurang $lackPoints poin',
+                      'Kurang ${_formatPoints(lackPoints)} poin',
                       style: const TextStyle(
                         fontSize: 10,
                         color: Colors.red,
@@ -585,7 +662,7 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen>
                     const SizedBox(width: 8),
                     Expanded(
                       child: Text(
-                        'Poin Anda kurang $lackPoints. Kumpulkan lebih banyak poin untuk menukar reward ini!',
+                        'Poin Anda kurang ${_formatPoints(lackPoints)}. Kumpulkan lebih banyak poin untuk menukar reward ini!',
                         style: const TextStyle(
                           fontSize: 12,
                           color: Colors.red,
@@ -789,6 +866,14 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen>
           ),
         ],
       ),
+    );
+  }
+
+  // Helper: Format angka
+  String _formatPoints(int points) {
+    return points.toString().replaceAllMapped(
+      RegExp(r'(\d{1,3})(?=(\d{3})+(?!\d))'),
+      (Match m) => '${m[1]}.',
     );
   }
 }
