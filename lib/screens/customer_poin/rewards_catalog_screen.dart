@@ -430,7 +430,7 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen>
                   ],
                 ),
                 
-                const SizedBox(height: 12),
+                const SizedBox(height: 8),
                 
                 // Title
                 Text(
@@ -697,7 +697,7 @@ class _RewardsCatalogScreenState extends State<RewardsCatalogScreen>
                         ),
                         const SizedBox(width: 8),
                         Text(
-                          '${reward['points']} poin',
+                          '${reward['points']}',
                           style: TextStyle(
                             fontSize: 16,
                             fontWeight: FontWeight.bold,
