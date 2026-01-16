@@ -405,7 +405,6 @@ class _PoinScreenState extends State<PoinScreen> {
 }
 
 /// Featured Reward Banner (Top Pick)
-/// Featured Reward Banner (Top Pick) - Now Clickable
 Widget _buildFeaturedRewardBanner() {
   return Container(
     decoration: BoxDecoration(
@@ -673,7 +672,7 @@ void _showFeaturedRewardDetail() {
                       Icon(Icons.stars, color: Color(0xFFFFA726), size: 20),
                       SizedBox(width: 8),
                       Text(
-                        '3.000 poin',
+                        '3.000',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
@@ -1019,7 +1018,7 @@ void _showRewardDetail() {
                       Icon(Icons.stars, color: kPrimaryDark, size: 20),
                       SizedBox(width: 8),
                       Text(
-                        '1.500 poin',
+                        '1.500',
                         style: TextStyle(
                           fontSize: 16,
                           fontWeight: FontWeight.bold,
