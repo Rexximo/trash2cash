@@ -16,47 +16,6 @@ const kPrimaryColor = Color(0xFF00C4CC);
 const kPrimaryDark = Color(0xFF0097A7);
 const kBackgroundColor = Color(0xFFF5F7F9);
 
-/// === DATA MODEL FOR PICKUP ORDERS ==========================================
-
-class PickupOrder {
-  final String id;
-  final String statusLabel;
-  final String timeLabel;
-  final String subtitle;
-  final int? points;
-
-  const PickupOrder({
-    required this.id,
-    required this.statusLabel,
-    required this.timeLabel,
-    required this.subtitle,
-    this.points,
-  });
-}
-
-const PickupOrder kActivePickup = PickupOrder(
-  id: "BS-2031",
-  statusLabel: "Sedang dijemput",
-  timeLabel: "Hari ini • 09.30 - 10.00",
-  subtitle: "Petugas: Budi • Motor Listrik",
-);
-
-const List<PickupOrder> kRecentHistory = [
-  PickupOrder(
-    id: "BS-2028",
-    statusLabel: "Selesai",
-    timeLabel: "Kemarin • 15.20",
-    subtitle: "5.4 kg • +540 poin",
-    points: 540,
-  ),
-  PickupOrder(
-    id: "BS-2021",
-    statusLabel: "Selesai",
-    timeLabel: "3 hari lalu • 10.05",
-    subtitle: "2.1 kg • +210 poin",
-    points: 210,
-  ),
-];
 
 /// === CustomerHomeScreen ============================================================
 
@@ -188,8 +147,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
                         _buildMainCTA(context),
                         const SizedBox(height: 20),
                         _buildQuickActions(context),
-                        const SizedBox(height: 22),
-                        _buildActivePickupCard(context),
                         const SizedBox(height: 22),
                         _buildHistorySection(context),
                         const SizedBox(height: 22),
@@ -647,40 +604,6 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
   );
 }
 
-
-  // ==========================================================================
-
-  Widget _buildActivePickupCard(BuildContext context) {
-    final order = kActivePickup;
-    return Container(
-      padding: const EdgeInsets.all(16),
-      decoration:
-          BoxDecoration(color: Colors.white, borderRadius: BorderRadius.circular(18)),
-      child: Row(
-        children: [
-          const Icon(Icons.directions_bike, size: 32, color: kPrimaryDark),
-          const SizedBox(width: 12),
-          Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text("Pickup Aktif • ${order.id}",
-                    style: const TextStyle(fontWeight: FontWeight.w600)),
-                const SizedBox(height: 2),
-                Text(order.timeLabel, style: const TextStyle(fontSize: 12)),
-                Text(order.subtitle, style: const TextStyle(fontSize: 11)),
-              ],
-            ),
-          ),
-          TextButton(
-            onPressed: () {},
-            child:
-                const Text("Detail", style: TextStyle(color: kPrimaryDark)),
-          )
-        ],
-      ),
-    );
-  }
 
   // ==========================================================================
 
