@@ -742,6 +742,7 @@ void _showFeaturedRedeemConfirmation() {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: const Color(0xFFFFA726),
+            foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -1112,6 +1113,7 @@ void _showRedeemConfirmation() {
           },
           style: ElevatedButton.styleFrom(
             backgroundColor: kPrimaryDark,
+            foregroundColor: Colors.white,
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
             ),
@@ -1167,6 +1169,7 @@ void _showRedeemSuccess() {
           onPressed: () => Navigator.pop(context),
           style: ElevatedButton.styleFrom(
             backgroundColor: kPrimaryDark,
+            foregroundColor: Colors.white,
             minimumSize: const Size(double.infinity, 44),
             shape: RoundedRectangleBorder(
               borderRadius: BorderRadius.circular(12),
