@@ -26,6 +26,7 @@ void _confirmLogout(BuildContext context) {
         ElevatedButton(
           style: ElevatedButton.styleFrom(
             backgroundColor: Colors.red,
+            foregroundColor: Colors.white
           ),
           onPressed: () async {
             await FirebaseAuth.instance.signOut();
@@ -97,18 +98,7 @@ Widget build(BuildContext context) {
             );
           },
         ),
-        _menu(
-          Icons.location_on_outlined,
-          "Alamat",
-          onTap: () {
-            Navigator.push(
-              context,
-              MaterialPageRoute(
-                builder: (context) => const AlamatScreen(),
-              ),
-            );
-          },
-        ),
+        
 
         const SizedBox(height: 20),
 
