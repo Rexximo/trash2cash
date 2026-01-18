@@ -82,120 +82,241 @@ class _PoinScreenState extends State<PoinScreen> {
     final bool isMaxLevel = nextLevel == null;
 
     return Container(
-      padding: const EdgeInsets.all(22),
+      width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(  // ✅ Gradient kembali
+        gradient: const LinearGradient(
           colors: [kPrimary, kPrimaryDark],
           begin: Alignment.topLeft,
           end: Alignment.bottomRight,
         ),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(32), // Lebih rounded
+        boxShadow: [
+          BoxShadow(
+            color: kPrimary.withOpacity(0.4),
+            blurRadius: 20,
+            offset: const Offset(0, 10),
+          ),
+        ],
       ),
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
+      child: Stack(
         children: [
-          // Header dengan icon badge
-          Row(
-            children: [
-              const SizedBox(width: 8),
-              Expanded(
-                child: Column(
+          // === DEKORASI BACKGROUND (Lingkaran Transparan) ===
+          Positioned(
+            top: -40,
+            right: -40,
+            child: Container(
+              width: 180,
+              height: 180,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.1),
+              ),
+            ),
+          ),
+          Positioned(
+            bottom: -20,
+            left: -40,
+            child: Container(
+              width: 140,
+              height: 140,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.white.withOpacity(0.08),
+              ),
+            ),
+          ),
+
+          // === KONTEN UTAMA ===
+          Padding(
+            padding: const EdgeInsets.all(26),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                // 1. Header: Label & Level Badge
+                Row(
                   crossAxisAlignment: CrossAxisAlignment.start,
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
                   children: [
-                    const Text(
-                      "Total Poin Kamu",
-                      style: TextStyle(
-                        fontSize: 13,
-                        color: Colors.white70,
-                      ),
+                    Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            Text(
+                              "Total Poin Kamu",
+                              style: TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.w500,
+                                color: Colors.white.withOpacity(0.9),
+                                letterSpacing: 0.5,
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 8),
+                        // Angka Poin Besar
+                        Text(
+                          _formatPoints(totalPoints),
+                          style: const TextStyle(
+                            fontSize: 48, // Lebih besar
+                            fontWeight: FontWeight.w800,
+                            color: Colors.white,
+                            height: 1.0,
+                            letterSpacing: -1.5,
+                          ),
+                        ),
+                      ],
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      _formatPoints(totalPoints),
-                      style: const TextStyle(
-                        fontSize: 42,
-                        fontWeight: FontWeight.bold,
-                        color: Colors.white,
+                    
+                    // Level Badge (Glassmorphism Style)
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                      decoration: BoxDecoration(
+                        color: Colors.white.withOpacity(0.2),
+                        borderRadius: BorderRadius.circular(20),
+                        border: Border.all(color: Colors.white.withOpacity(0.2)),
+                      ),
+                      child: Column(
+                        children: [
+                          Text(
+                            "Level $level",
+                            style: const TextStyle(
+                              color: Colors.white,
+                              fontSize: 12,
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          Text(
+                            _getLevelEmoji(level),
+                            style: const TextStyle(fontSize: 18),
+                          ),
+                        ],
                       ),
                     ),
                   ],
                 ),
-              ),
-              // Badge level
-              Container(
-                padding: const EdgeInsets.symmetric(
-                  horizontal: 12,
-                  vertical: 6,
-                ),
-                decoration: BoxDecoration(
-                  color: Colors.white.withOpacity(0.25),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Text(
-                  "Lv $level",
-                  style: const TextStyle(
-                    color: Colors.white,
-                    fontSize: 12,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ),
-            ],
-          ),
-          
-          const SizedBox(height: 50),
-          
-          // Level info
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-            decoration: BoxDecoration(
-              color: Colors.white.withOpacity(0.2),
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              mainAxisSize: MainAxisSize.min,
-              children: [
-                Text(
-                  _getLevelEmoji(level),
-                  style: const TextStyle(fontSize: 16),
-                ),
-                const SizedBox(width: 6),
+
+                const SizedBox(height: 24),
+
+                // 2. Title Level Saat Ini
                 Text(
                   levelTitle,
                   style: const TextStyle(
-                    fontSize: 13,
-                    fontWeight: FontWeight.w600,
+                    fontSize: 16,
+                    fontWeight: FontWeight.bold,
                     color: Colors.white,
+                    letterSpacing: 0.5,
                   ),
                 ),
-              ],
-            ),
-          ),
-          
-          // Progress bar
-          if (!isMaxLevel) ...[
-            const SizedBox(height: 16),
-            Stack(
-              children: [
-                Container(
-                  height: 10,
-                  decoration: BoxDecoration(
-                    color: Colors.white24,
-                    borderRadius: BorderRadius.circular(10),
+                const SizedBox(height: 8),
+
+                // 3. Custom Progress Bar
+                if (!isMaxLevel) ...[
+                  Stack(
+                    children: [
+                      // Track (Background Bar)
+                      Container(
+                        height: 8,
+                        width: double.infinity,
+                        decoration: BoxDecoration(
+                          color: Colors.black.withOpacity(0.15),
+                          borderRadius: BorderRadius.circular(10),
+                        ),
+                      ),
+                      // Value (Active Bar)
+                      FractionallySizedBox(
+                        widthFactor: levelProgress.clamp(0.0, 1.0),
+                        child: Container(
+                          height: 8,
+                          decoration: BoxDecoration(
+                            color: Colors.white,
+                            borderRadius: BorderRadius.circular(10),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.white.withOpacity(0.6),
+                                blurRadius: 6,
+                                spreadRadius: 1,
+                              ),
+                            ],
+                          ),
+                        ),
+                      ),
+                    ],
                   ),
-                ),
-                FractionallySizedBox(
-                  widthFactor: levelProgress,
-                  child: Container(
-                    height: 10,
+                  const SizedBox(height: 8),
+                  
+                  // Text Info Next Level
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                    children: [
+                      Text(
+                        "${_formatPoints(pointsNeeded)} poin lagi ke Level ${level + 1}",
+                        style: TextStyle(
+                          fontSize: 12,
+                          color: Colors.white.withOpacity(0.8),
+                          fontWeight: FontWeight.w500,
+                        ),
+                      ),
+                      Text(
+                        "${(levelProgress * 100).toInt()}%",
+                        style: const TextStyle(
+                          fontSize: 12,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                    ],
+                  ),
+                ] else ...[
+                  // Tampilan jika Max Level
+                  Container(
+                    padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
                     decoration: BoxDecoration(
-                      color: Colors.white,
-                      borderRadius: BorderRadius.circular(10),
-                      boxShadow: [
-                        BoxShadow(
-                          color: Colors.white.withOpacity(0.5),
-                          blurRadius: 4,
-                          offset: const Offset(0, 2),
+                      color: Colors.white.withOpacity(0.15),
+                      borderRadius: BorderRadius.circular(12),
+                    ),
+                    child: Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: const [
+                        Icon(Icons.emoji_events_rounded, color: Colors.white, size: 16),
+                        SizedBox(width: 8),
+                        Text(
+                          "Level Maksimal Tercapai!",
+                          style: TextStyle(color: Colors.white, fontSize: 12),
+                        ),
+                      ],
+                    ),
+                  ),
+                ],
+
+                const SizedBox(height: 24),
+
+                // 4. Action Button (Tukar Poin)
+                SizedBox(
+                  width: double.infinity,
+                  child: ElevatedButton(
+                    onPressed: () => _showRedeemDialog(totalPoints),
+                    style: ElevatedButton.styleFrom(
+                      backgroundColor: Colors.white,
+                      foregroundColor: kPrimaryDark,
+                      padding: const EdgeInsets.symmetric(vertical: 16),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(18),
+                      ),
+                      elevation: 4,
+                      shadowColor: Colors.black.withOpacity(0.2),
+                    ),
+                    child: Row(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: const [
+                        Icon(Icons.redeem_rounded, size: 20),
+                        SizedBox(width: 8),
+                        Text(
+                          "Tukar Poin Sekarang",
+                          style: TextStyle(
+                            fontSize: 14,
+                            fontWeight: FontWeight.bold,
+                          ),
                         ),
                       ],
                     ),
@@ -203,132 +324,50 @@ class _PoinScreenState extends State<PoinScreen> {
                 ),
               ],
             ),
-            const SizedBox(height: 10),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.spaceBetween,
-              children: [
-                Row(
-                  children: [
-                    const Icon(
-                      Icons.arrow_upward,
-                      size: 14,
-                      color: Colors.white70,
-                    ),
-                    const SizedBox(width: 4),
-                    Text(
-                      "${_formatPoints(pointsNeeded)} poin lagi ke Level ${level + 1}",
-                      style: const TextStyle(
-                        fontSize: 12,
-                        color: Colors.white70,
-                        fontWeight: FontWeight.w500,
-                      ),
-                    ),
-                  ],
-                ),
-                Text(
-                  "${(levelProgress * 100).toStringAsFixed(0)}%",
-                  style: const TextStyle(
-                    fontSize: 11,
-                    color: Colors.white,
-                    fontWeight: FontWeight.bold,
-                  ),
-                ),
-              ],
-            ),
-          ],
-          
-          if (isMaxLevel) ...[
-            const SizedBox(height: 12),
-            Row(
-              children: const [
-                Icon(
-                  Icons.emoji_events,
-                  size: 16,
-                  color: Colors.white70,
-                ),
-                SizedBox(width: 6),
-                Expanded(
-                  child: Text(
-                    "Selamat! Level maksimal tercapai 🎉",
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.white70,
-                      fontWeight: FontWeight.w500,
-                    ),
-                  ),
-                ),
-              ],
-            ),
-          ],
-          
-          const SizedBox(height: 18),
-          
-          // Button tukar poin
-          SizedBox(
-            width: double.infinity,
-            child: ElevatedButton(
-              onPressed: () => _showRedeemDialog(totalPoints),
-              style: ElevatedButton.styleFrom(
-                backgroundColor: Colors.white,
-                foregroundColor: kPrimaryDark,
-                padding: const EdgeInsets.symmetric(vertical: 14),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(16),
-                ),
-                elevation: 0,
-              ),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                children: const [
-                  Icon(Icons.card_giftcard, size: 20),
-                  SizedBox(width: 8),
-                  Text(
-                    "Tukar Poin",
-                    style: TextStyle(
-                      fontSize: 15,
-                      fontWeight: FontWeight.w600,
-                    ),
-                  ),
-                ],
-              ),
-            ),
           ),
         ],
       ),
     );
   }
 
-  // METHOD 3: Loading State
+  // === Loading State (Updated Style) ===
   Widget _heroLoading() {
     return Container(
-      height: 200,
-      padding: const EdgeInsets.all(22),
+      height: 280, // Sesuaikan tinggi estimasi
+      width: double.infinity,
       decoration: BoxDecoration(
-        gradient: const LinearGradient(colors: [kPrimary, kPrimaryDark]),
-        borderRadius: BorderRadius.circular(26),
+        color: Colors.grey[300],
+        borderRadius: BorderRadius.circular(32),
       ),
       child: const Center(
-        child: CircularProgressIndicator(color: Colors.white),
+        child: CircularProgressIndicator(color: kPrimary),
       ),
     );
   }
 
-  // METHOD 4: Error State
+  // === Error State (Updated Style) ===
   Widget _heroError() {
     return Container(
-      padding: const EdgeInsets.all(22),
+      width: double.infinity,
+      padding: const EdgeInsets.all(26),
       decoration: BoxDecoration(
         gradient: const LinearGradient(colors: [kPrimary, kPrimaryDark]),
-        borderRadius: BorderRadius.circular(26),
+        borderRadius: BorderRadius.circular(32),
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
-        children: const [
-          Text("Total Poin", style: TextStyle(color: Colors.white70)),
-          SizedBox(height: 6),
-          Text("---", style: TextStyle(fontSize: 36, fontWeight: FontWeight.bold, color: Colors.white)),
-          SizedBox(height: 6),
-          Text("Gagal memuat data", style: TextStyle(color: Colors.white70, fontSize: 12)),
+        children: [
+          const Text("Total Poin", style: TextStyle(color: Colors.white70)),
+          const SizedBox(height: 8),
+          const Text("---", style: TextStyle(fontSize: 48, fontWeight: FontWeight.bold, color: Colors.white)),
+          const SizedBox(height: 12),
+          Row(
+            children: const [
+              Icon(Icons.error_outline, color: Colors.white70, size: 16),
+              SizedBox(width: 6),
+              Text("Gagal memuat data", style: TextStyle(color: Colors.white70)),
+            ],
+          ),
         ],
       ),
     );
