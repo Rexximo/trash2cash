@@ -175,7 +175,7 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
     return Container(
       padding: const EdgeInsets.fromLTRB(20, 16, 20, 16),
       decoration: BoxDecoration(
-        color: const Color.fromARGB(255, 255, 255, 255), // Menyatu dengan background
+        color: Colors.white, 
       ),
       child: Row(
         children: [
@@ -183,15 +183,9 @@ class _CustomerHomeScreenState extends State<CustomerHomeScreen> {
             child: Container(
               height: 48,
               decoration: BoxDecoration(
-                color: Colors.white,
+                color: kBackgroundColor,
                 borderRadius: BorderRadius.circular(16),
-                boxShadow: [
-                  BoxShadow(
-                    color: kShadowColor,
-                    blurRadius: 10,
-                    offset: const Offset(0, 4),
-                  ),
-                ],
+                border: Border.all(color: kPrimaryColor),
               ),
               child: TextField(
                 controller: _searchController,
