@@ -6,6 +6,7 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:trash2cash/screens/login_screen.dart';
 
 const kPrimary = Color(0xFF00C4CC);
 const kPrimaryDark = Color(0xFF0097A7);
@@ -688,25 +689,40 @@ class _DataPribadiScreenState extends State<DataPribadiScreen> {
         title: const Text('Logout'),
         content: const Text('Apakah Anda yakin ingin keluar?'),
         actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
+        TextButton(
+          onPressed: () => Navigator.pop(context),
+          child: const Text("Batal"),
+        ),
+        ElevatedButton(
+          style: ElevatedButton.styleFrom(
+            backgroundColor: Colors.red,
+            foregroundColor: Colors.white
           ),
-          ElevatedButton(
-            onPressed: () async {
-              Navigator.pop(context);
-              await _logout();
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: Colors.red,
-              foregroundColor: Colors.white,
-              shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(12),
+          onPressed: () async {
+            await FirebaseAuth.instance.signOut();
+
+            if (!context.mounted) return;
+
+            Navigator.pop(context); // tutup dialog
+
+            Navigator.pushAndRemoveUntil(
+              context,
+              MaterialPageRoute(
+                builder: (_) => const LoginScreen(),
               ),
-            ),
-            child: const Text('Logout'),
-          ),
-        ],
+              (route) => false,
+            );
+
+            ScaffoldMessenger.of(context).showSnackBar(
+              const SnackBar(
+                content: Text("Logout berhasil"),
+                behavior: SnackBarBehavior.floating,
+              ),
+            );
+          },
+          child: const Text("Keluar"),
+        ),
+      ],
       ),
     );
   }

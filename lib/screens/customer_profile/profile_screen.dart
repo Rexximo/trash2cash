@@ -3,60 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:trash2cash/services/points_service.dart';
 import 'package:trash2cash/services/user_service.dart';
 import 'data_pribadi_screen.dart';
-import 'alamat_screen.dart';
 import 'notifikasi_screen.dart';
 import 'bahasa_screen.dart';
 import 'bantuan_screen.dart';
 import 'tentang_aplikasi_screen.dart';
-import '../login_screen.dart';
-
-void _confirmLogout(BuildContext context) {
-  showDialog(
-    context: context,
-    builder: (context) => AlertDialog(
-      title: const Text("Keluar"),
-      content: const Text(
-        "Apakah kamu yakin ingin keluar dari akun ini?",
-      ),
-      actions: [
-        TextButton(
-          onPressed: () => Navigator.pop(context),
-          child: const Text("Batal"),
-        ),
-        ElevatedButton(
-          style: ElevatedButton.styleFrom(
-            backgroundColor: Colors.red,
-            foregroundColor: Colors.white
-          ),
-          onPressed: () async {
-            await FirebaseAuth.instance.signOut();
-
-            if (!context.mounted) return;
-
-            Navigator.pop(context); // tutup dialog
-
-            Navigator.pushAndRemoveUntil(
-              context,
-              MaterialPageRoute(
-                builder: (_) => const LoginScreen(),
-              ),
-              (route) => false,
-            );
-
-            ScaffoldMessenger.of(context).showSnackBar(
-              const SnackBar(
-                content: Text("Logout berhasil"),
-                behavior: SnackBarBehavior.floating,
-              ),
-            );
-          },
-          child: const Text("Keluar"),
-        ),
-      ],
-    ),
-  );
-}
-
 
 
 const kPrimaryDark = Color(0xFF0097A7);
@@ -156,12 +106,6 @@ Widget build(BuildContext context) {
               ),
             );
           },
-        ),
-        _menu(
-          Icons.logout,
-          "Keluar",
-          danger: true,
-          onTap: () => _confirmLogout(context),
         ),
       ],
     ),

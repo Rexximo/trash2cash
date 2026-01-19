@@ -15,7 +15,7 @@ import 'customer_edukasi/edukasi_sampah_screen.dart';
 const kPrimaryColor = Color(0xFF00C4CC);
 const kPrimaryDark = Color(0xFF0097A7);
 const kBackgroundColor = Color(0xFFF5F7F9);
-const kShadowColor = Color(0xFFE0E0E0); // Warna bayangan soft
+const kShadowColor = Color(0xFFE0E0E0); 
 
 /// === CustomerHomeScreen ====================================================
 
